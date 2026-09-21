@@ -83,10 +83,15 @@ const fuelCost=()=>n(state.fuel.mpg)>0?monthlyMiles()/n(state.fuel.mpg)*n(state.
 const precise=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:6}).format(n(v));
 const reserveMonthly=f=>f.basis==="miles"?(n(f.intervalMiles)>0?n(f.targetAmount)*monthlyMiles()/n(f.intervalMiles):0):(n(f.everyMonths)>0?n(f.targetAmount)/n(f.everyMonths):0);
 const sinkingMonthly=()=>state.sinkingFunds.reduce((s,f)=>s+reserveMonthly(f),0);
-const householdOutflow=()=>billsMonth()+dailyMonth()+(fuelCost()||0)+n(state.otherCash)+sinkingMonthly();
+const householdOutflow=()=>billsMonth()+dailyMonth()+(fuelCost()||0)+n(state.otherCash)+sinkingMonthly()+medicalMonthly()+taxItemMonthly();
 const householdAfterReserves=()=>income()-householdOutflow();
 const householdIncomeGap=()=>Math.max(0,-householdAfterReserves());
 const monthlyEq=x=>n(x.amount)/Math.max(1,n(x.everyMonths)||1);
+const taxItemMonthly=()=>state.taxItems.reduce((s,x)=>s+n(x.expected)/Math.max(1,n(x.everyMonths)||1),0);
+const medicalMonthly=()=>state.medical.items.reduce((s,x)=>s+n(x.expected)/Math.max(1,n(x.everyMonths)||1),0);
+const taxActualTotal=()=>state.taxItems.reduce((s,x)=>s+n(x.actual),0);
+const medicalActualTotal=()=>state.medical.items.reduce((s,x)=>s+n(x.actual),0);
+const dueGeneric=(x,m)=>{let d=mdiff(x.startMonth||m,m);return d>=0&&d%Math.max(1,n(x.everyMonths)||1)===0};
 const businessRevenue=()=>state.business.revenue.reduce((s,x)=>s+monthlyEq(x),0);
 const businessExpenses=()=>state.business.expenses.reduce((s,x)=>s+monthlyEq(x),0);
 const businessReserveLines=()=>state.business.reserves.reduce((s,x)=>s+monthlyEq(x),0);
