@@ -1,5 +1,5 @@
 const KEY="familyPlannerLocalV2";
-const NAV=[["home","⌂","Home"],["food","◫","Food"],["meals","◉","Meals"],["groceries","✓","List"],["budget","$","Budget"],["driving","↗","Drive"],["business","▣","Business"],["settings","⚙","Settings"]];
+const NAV=[["home","⌂","Home"],["food","◫","Food"],["recipes","▤","Recipes"],["meals","◉","Meals"],["groceries","✓","List"],["budget","$","Budget"],["driving","↗","Drive"],["business","▣","Business"],["settings","⚙","Settings"]];
 const RECIPES=[
 {id:"greekChicken",name:"Greek Chicken",servings:6,cost:10,tags:["protein"],q:"Greek chicken recipe",ing:[["chicken",2,"lb"],["lemon",2,"count"],["plain yogurt",8,"oz"]]},
 {id:"bakedPotato",name:"Baked Potato Night",servings:4,cost:6,tags:["cheap","calcium"],q:"baked potato dinner recipe",ing:[["russet potatoes",2,"lb"],["cheddar",6,"oz"],["sour cream",8,"oz"]]},
