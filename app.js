@@ -21,7 +21,7 @@ const RECIPES=[
 {id:"burgers",name:"Hamburger Night",servings:4,cost:10,tags:["protein"],q:"simple homemade hamburgers recipe",ing:[["ground beef",1.5,"lb"],["burger buns",4,"count"],["cheddar",4,"oz"]]},
 {id:"loadedPotatoes",name:"Loaded Chicken Baked Potatoes",servings:4,cost:8,tags:["protein","calcium"],q:"loaded chicken baked potato recipe",ing:[["russet potatoes",2,"lb"],["chicken",1,"lb"],["cheddar",6,"oz"],["sour cream",8,"oz"]]}
 ];
-const blank=()=>({version:4,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,dinnerSlots:30,zip:"",prices:[],essentials:[],inventory:[],plan:{},cooked:{},purchased:{},purchaseCost:{},income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,householdTransfer:0,revenue:[],expenses:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
+const blank=()=>({version:5,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,dinnerSlots:30,zip:"",prices:[],essentials:[],inventory:[],plan:{},cooked:{},purchased:{},purchaseCost:{},income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",actualMonth:"",actualHistory:{},assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,householdTransfer:0,revenue:[],expenses:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
 let state=(()=>{try{return Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||"{}"))}catch{return blank()}})();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], n=v=>Number.isFinite(+v)?+v:0, money=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n(v)), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])), search=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
 const save=()=>localStorage.setItem(KEY,JSON.stringify(state)), ym=()=>new Date().toISOString().slice(0,7), days=()=>new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
@@ -74,6 +74,38 @@ const businessNetWorth=()=>businessAssetTotal()-businessLiabilityTotal();
 const businessRevenueTarget=()=>{let p=Math.min(.99,Math.max(0,n(state.business.taxReservePct)/100));return businessExpenses()+n(state.business.ownerDraw)/(1-p)};
 const businessRevenueGap=()=>Math.max(0,businessRevenueTarget()-businessRevenue());
 const businessRunway=()=>{let burn=Math.max(0,-businessAfterOwner());return burn>0?n(state.business.cash)/burn:null};
+const daysInMonth=m=>{let [y,mo]=String(m||ym()).split("-").map(Number);return new Date(y,mo,0).getDate()};
+const billsBudgetForMonth=m=>state.bills.filter(b=>{let d=mdiff(b.startMonth||m,m);return d>=0&&d%Math.max(1,n(b.frequencyMonths)||1)===0}).reduce((s,b)=>s+n(b.amount),0);
+const dailyBudgetForMonth=m=>state.dailyExpenses.reduce((s,d)=>s+n(d.amountPerDay)*daysInMonth(m),0);
+function actualBucket(){
+  if(!state.actualMonth)state.actualMonth=ym();
+  if(!state.actualHistory||typeof state.actualHistory!=="object")state.actualHistory={};
+  if(!state.actualHistory[state.actualMonth]||typeof state.actualHistory[state.actualMonth]!=="object")state.actualHistory[state.actualMonth]={};
+  return state.actualHistory[state.actualMonth];
+}
+function householdBvaRows(){
+  let m=state.actualMonth||ym();
+  return[
+    {key:"income",label:"Net household income",budget:income(),type:"income"},
+    {key:"bills",label:"Bills",budget:billsBudgetForMonth(m),type:"expense"},
+    {key:"daily",label:"Daily expenses",budget:dailyBudgetForMonth(m),type:"expense"},
+    {key:"fuel",label:"Fuel",budget:fuelCost()||0,type:"expense"},
+    {key:"other",label:"Other / unlisted",budget:n(state.otherCash),type:"expense"},
+    {key:"reserves",label:"Sinking-fund contributions",budget:sinkingMonthly(),type:"expense"},
+    {key:"food",label:"Food / EBT spending",budget:n(state.ebtBudget),type:"expense"}
+  ];
+}
+function businessBvaRows(){
+  return[
+    {key:"businessRevenue",label:"Revenue",budget:businessRevenue(),type:"income"},
+    {key:"businessExpenses",label:"Operating expenses",budget:businessExpenses(),type:"expense"},
+    {key:"businessTax",label:"Tax reserve",budget:businessTaxReserve(),type:"expense"},
+    {key:"businessDraw",label:"Owner draw",budget:n(state.business.ownerDraw),type:"expense"}
+  ];
+}
+const actualNum=(bucket,key)=>bucket[key]===""||bucket[key]==null?null:n(bucket[key]);
+const favorableVariance=(row,actual)=>actual==null?null:(row.type==="income"?actual-row.budget:row.budget-actual);
+
 function grocery(){
   let m={};
   const add=(name,q,u,src)=>{let k=name+"|"+u;if(!m[k])m[k]={key:k,name,qty:0,unit:u,sources:new Set};m[k].qty+=n(q);m[k].sources.add(src)};
