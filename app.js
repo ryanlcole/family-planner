@@ -230,6 +230,15 @@ function renderIncomeCalendar(){
   $("#incomeCalendar").innerHTML="<div class='calgrid'>"+cells.join("")+"</div>";
 }
 function shiftIncomeCalendar(delta){let {y,m}=monthInfo(state.incomeCalendarMonth||ym()),d=new Date(y,m-1+delta,1);state.incomeCalendarMonth=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");render()}
+function renderMedicalCalendar(){
+  if(!state.medical.calendarMonth)state.medical.calendarMonth=ym();let {y,m,date}=monthInfo(state.medical.calendarMonth),last=new Date(y,m,0).getDate(),first=date.getDay();
+  $("#medCalLabel").textContent=date.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  let cells=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(x=>"<div class='calDow'>"+x+"</div>");
+  for(let i=0;i<first;i++)cells.push("<div class='calCell muted'></div>");
+  for(let d=1;d<=last;d++){let xs=state.medical.items.filter(x=>dueGeneric(x,state.medical.calendarMonth)&&Math.min(last,Math.max(1,n(x.dueDay)||1))===d);cells.push("<div class='calCell'><b>"+d+"</b>"+xs.map(x=>"<div class='calBill'>"+esc(x.name||"Medical")+"<br><strong>"+money(x.expected)+"</strong></div>").join("")+"</div>")}
+  $("#medicalCalendar").innerHTML="<div class='calgrid'>"+cells.join("")+"</div>";
+}
+function shiftMedicalCalendar(delta){let {y,m}=monthInfo(state.medical.calendarMonth||ym()),d=new Date(y,m-1+delta,1);state.medical.calendarMonth=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");render()}
 function renderBillCalendar(){
   if(!state.calendarMonth)state.calendarMonth=ym();let {y,m,date}=monthInfo(state.calendarMonth),last=new Date(y,m,0).getDate(),first=date.getDay();
   $("#calLabel").textContent=date.toLocaleDateString(undefined,{month:"long",year:"numeric"});
