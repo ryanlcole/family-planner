@@ -29,7 +29,7 @@ const mdiff=(a,b)=>{let A=(a||ym()).split("-").map(Number),B=(b||ym()).split("-"
 const due=b=>{let d=mdiff(b.startMonth,ym());return d>=0&&d%Math.max(1,n(b.frequencyMonths)||1)===0};
 const essentialsTotal=()=>state.essentials.reduce((s,e)=>s+n(e.qty)*n(e.unitPrice),0);
 function normalizePlan(){
-  if(!state.plan||typeof state.plan!=="object")state.plan={};normalizePlan();
+  if(!state.plan||typeof state.plan!=="object")state.plan={};
   Object.entries(state.plan).forEach(([id,v])=>{
     if(typeof v==="number"){let old=Math.max(1,n(v));state.plan[id]={count:old,dates:[],prepared:Math.min(old,n(state.cooked?.[id])),addedAt:0}}
     else if(!v||typeof v!=="object"){delete state.plan[id]}
