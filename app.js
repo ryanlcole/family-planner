@@ -460,4 +460,5 @@ $("#importFile").onchange=async e=>{let file=e.target.files?.[0];if(!file)return
 $("#resetBtn").onclick=()=>{if(confirm("Clear all planner data from this browser?")){state=blank();render();show("home")}};
 }
 shell();nav();setupEvents();state.view="home";render();show("home");
+window.addEventListener("pageshow",()=>{if(document.visibilityState==="visible")show("home")});
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
