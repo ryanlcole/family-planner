@@ -116,7 +116,7 @@ function nav(){let top=NAV.map(x=>`<button data-nav="${x[0]}">${x[2]}</button>`)
 function show(v){state.view=v;$$(".view").forEach(x=>x.classList.toggle("active",x.dataset.v===v));$$("[data-nav]").forEach(x=>x.classList.toggle("active",x.dataset.nav===v));save();scrollTo({top:0,behavior:"smooth"})}
 function render(){
 $("#labelTop").textContent=(state.householdLabel||"My Household")+" · local-only";
-$("#setup").textContent=state.profileLoaded?"Private profile loaded on this device.":"No private profile loaded yet. Open Settings to import your Drive JSON.";
+$("#setup").textContent=state.profileLoaded?"Private profile loaded on this device.":"No private profile loaded yet. Open Settings to restore your private backup JSON.";
 $("#cashHero").textContent=state.profileLoaded?money(cashLeft()):"Import profile";$("#foodHero").textContent=state.profileLoaded?money(foodLeft()):"—";$("#milesHero").textContent=state.profileLoaded?Math.round(monthlyMiles()).toLocaleString()+" mi":"—";$("#fuelHero").textContent=fuelCost()==null?"Enter MPG":money(fuelCost());
 $("#homeStats").innerHTML=[["Modeled cash income",money(income())],["Bills due",money(billsMonth())],["Food remaining",money(foodLeft())],["Daily expenses",money(dailyMonth())]].map(x=>`<div class="stat"><small>${x[0]}</small><div class="value">${x[1]}</div></div>`).join("");
 $("#foodRemain").textContent=money(foodLeft());
