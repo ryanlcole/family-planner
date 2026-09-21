@@ -54,7 +54,7 @@ const planTotal=()=>Object.entries(state.plan).reduce((s,[id,e])=>s+planCount(e)
 const foodLeft=()=>n(state.ebtBudget)-essentialsTotal()-planTotal();
 const batches=()=>plannedCount(), slots=()=>Math.max(0,n(state.dinnerSlots)-plannedCount()), target=()=>slots()?Math.max(0,foodLeft()/slots()):0;
 const repeats=r=>Math.max(0,Math.min(slots(),Math.floor(Math.max(0,foodLeft())/Math.max(.01,r.cost))));
-const recipeById=id=>recipeById(id)||state.cookbook.find(r=>r.id===id);
+const recipeById=id=>RECIPES.find(r=>r.id===id)||state.cookbook.find(r=>r.id===id);
 const fullCookbook=()=>[...RECIPES,...state.cookbook.filter(r=>!RECIPES.some(x=>x.id===r.id))];
 const activeRecipes=()=>Object.entries(state.plan).filter(([,e])=>remainingFor(e)>0).map(([id,e])=>({recipe:recipeById(id),entry:e})).filter(x=>x.recipe);
 const expectedMealCost=r=>r.ing.reduce((s,i)=>{let buy=Math.max(0,n(i[1])-inventoryQty(i[0],i[2])),v=ingredientExpected(i[0],buy,i[2]);return s+(v==null?0:v)},0);
