@@ -109,7 +109,17 @@ function payrollGrossMonthRaw(month=ym()){
  if(state.incomeSources.length)return state.incomeSources.flatMap(s=>incomeDatesForMonth(s,month).map(()=>s)).filter(s=>s.taxMode==="payroll").reduce((sum,s)=>sum+n(s.amount),0);
  return salaryGross()+tips();
 }
-const payrollGrossAnnual=()=>payrollGrossMonthRaw()*12;
+function annualizedSourceGross(s){
+ const amount=n(s.amount),cad=s.cadence||"monthly";
+ if(cad==="daily")return amount*365;
+ if(cad==="weekly")return amount*52;
+ if(cad==="biweekly")return amount*26;
+ if(cad==="twice-monthly")return amount*24;
+ if(cad==="tips")return amount*Math.max(1,n(s.daysPerWeek)||1)*52;
+ if(cad==="random")return amount;
+ return amount*12;
+}
+const payrollGrossAnnual=()=>state.incomeSources.length?state.incomeSources.filter(s=>s.taxMode==="payroll").reduce((sum,s)=>sum+annualizedSourceGross(s),0):(salaryGross()+tips())*12;
 const federalDeduction=()=>state.taxProfile.federalDeductionMode==="custom"?Math.max(0,n(state.taxProfile.federalCustomDeduction)):TAX_2026.federal.standard[filingStatus()];
 const ncDeduction=()=>state.taxProfile.ncDeductionMode==="custom"?Math.max(0,n(state.taxProfile.ncCustomDeduction)):TAX_2026.nc.standard[filingStatus()];
 function payrollTaxBreakdown(){
