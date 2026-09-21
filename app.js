@@ -199,6 +199,11 @@ function budgetLines(){
   "BUSINESS - "+(state.business.name||"My Business"),"Monthly revenue: "+precise(businessRevenue()),"Monthly operating expenses: "+precise(businessExpenses()),"Operating profit: "+precise(businessOperatingProfit()),"Tax reserve: "+precise(businessTaxReserve()),"Desired owner draw: "+precise(state.business.ownerDraw),"Actual transfer to household: "+precise(state.business.householdTransfer),"After reserve + actual transfer: "+precise(businessAfterOwner()),"Revenue needed for target: "+precise(businessRevenueTarget()),"Additional revenue needed: "+precise(businessRevenueGap()),"Business cash: "+precise(state.business.cash),"Business assets: "+precise(businessAssetTotal()),"Business liabilities: "+precise(businessLiabilityTotal()),"Business net worth: "+precise(businessNetWorth()));
   if(state.business.revenue.length){out.push("","BUSINESS REVENUE STREAMS");state.business.revenue.forEach(x=>out.push((x.name||"Revenue")+" - "+precise(x.amount)+" every "+(x.everyMonths||1)+" month(s)"))}
   if(state.business.expenses.length){out.push("","BUSINESS EXPENSES");state.business.expenses.forEach(x=>out.push((x.name||"Expense")+" - "+precise(x.amount)+" every "+(x.everyMonths||1)+" month(s)"))}
+  let ab=actualBucket();
+  out.push("","BUDGET VS ACTUAL - "+(state.actualMonth||ym()));
+  householdBvaRows().forEach(r=>{let a=actualNum(ab,r.key),v=favorableVariance(r,a);out.push(r.label+": budget "+precise(r.budget)+" | actual "+(a==null?"not entered":precise(a))+" | favorable variance "+(v==null?"not entered":precise(v)))});
+  out.push("","BUSINESS BUDGET VS ACTUAL - "+(state.actualMonth||ym()));
+  businessBvaRows().forEach(r=>{let a=actualNum(ab,r.key),v=favorableVariance(r,a);out.push(r.label+": budget "+precise(r.budget)+" | actual "+(a==null?"not entered":precise(a))+" | favorable variance "+(v==null?"not entered":precise(v)))});
   return out
 }
 function makePdf(lines){
