@@ -37,6 +37,67 @@ const billsMonth=()=>state.bills.filter(due).reduce((s,b)=>s+n(b.amount),0), bil
 const dailyMonth=()=>state.dailyExpenses.reduce((s,d)=>s+n(d.amountPerDay)*days(),0), weeklyMiles=()=>state.fuel.routes.reduce((s,r)=>s+(n(r.miles)>0&&n(r.days)>0?n(r.miles)*n(r.days):0),0), monthlyMiles=()=>weeklyMiles()*4.345;
 const fuelCost=()=>n(state.fuel.mpg)>0?monthlyMiles()/n(state.fuel.mpg)*n(state.fuel.pricePerGal):null, cashLeft=()=>income()-billsMonth()-dailyMonth()-(fuelCost()||0)-n(state.otherCash);
 function grocery(){let m={};const add=(name,q,u,src)=>{let k=name+"|"+u;if(!m[k])m[k]={key:k,name,qty:0,unit:u,sources:new Set};m[k].qty+=n(q);m[k].sources.add(src)};state.essentials.forEach(e=>n(e.qty)>0&&add(e.name,e.qty,e.unit,"essential"));Object.entries(state.plan).forEach(([id,c])=>{let r=RECIPES.find(x=>x.id===id);if(r)r.ing.forEach(i=>add(i[0],i[1]*n(c),i[2],r.name))});return Object.values(m)}
+
+const STORE_NAMES=["Walmart","Lidl","Lowes Foods","Family Dollar","Costco"];
+const offerCost=(p,store)=>{let o=p.offers?.[store];if(!o||n(o.price)<=0||n(o.amount)<=0||n(p.need)<=0)return Infinity;return Math.ceil(n(p.need)/n(o.amount))*n(o.price)};
+function autoStorePlan(mode=state.shoppingMode){
+  let items=(state.storeOffers||[]).filter(p=>n(p.need)>0), assignments=[], stores=[];
+  const candidate=(allowed)=>{
+    let rows=items.map(p=>{let choices=allowed.map(s=>({store:s,cost:offerCost(p,s)})).filter(x=>Number.isFinite(x.cost)).sort((a,b)=>a.cost-b.cost);return{p,choice:choices[0]||null}});
+    return{allowed,rows,missing:rows.filter(x=>!x.choice).length,total:rows.reduce((s,x)=>s+(x.choice?.cost||0),0)};
+  };
+  if(mode==="lowest"){
+    let x=candidate(STORE_NAMES);assignments=x.rows.map(x=>({product:x.p,store:x.choice?.store||"",cost:x.choice?.cost??null}));stores=[...new Set(assignments.map(x=>x.store).filter(Boolean))];
+  }else if(mode==="one"){
+    let best=STORE_NAMES.map(s=>candidate([s])).sort((a,b)=>a.missing-b.missing||a.total-b.total)[0];
+    assignments=best.rows.map(x=>({product:x.p,store:x.choice?.store||"",cost:x.choice?.cost??null}));stores=best.allowed;
+  }else{
+    let pairs=[];for(let i=0;i<STORE_NAMES.length;i++)for(let j=i+1;j<STORE_NAMES.length;j++)pairs.push(candidate([STORE_NAMES[i],STORE_NAMES[j]]));
+    let best=pairs.sort((a,b)=>a.missing-b.missing||a.total-b.total)[0]||candidate(STORE_NAMES.slice(0,2));
+    assignments=best.rows.map(x=>({product:x.p,store:x.choice?.store||"",cost:x.choice?.cost??null}));stores=best.allowed;
+  }
+  assignments=assignments.map(a=>{let o=state.itemOverrides?.[a.product.id];if(o&&Number.isFinite(offerCost(a.product,o)))return{...a,store:o,cost:offerCost(a.product,o),override:true};return a});
+  return{assignments,total:assignments.reduce((s,a)=>s+(a.cost||0),0),missing:assignments.filter(a=>a.cost==null).length,stores:[...new Set(assignments.map(a=>a.store).filter(Boolean))]};
+}
+function renderStoreComparison(){
+  if(!state.storeOffers)state.storeOffers=[];
+  $("#shoppingMode").value=state.shoppingMode||"lowest";
+  $("#storeMatrixHead").innerHTML="<tr><th>Product / Need</th>"+STORE_NAMES.map(s=>"<th>"+s+"</th>").join("")+"<th></th></tr>";
+  $("#storeMatrixBody").innerHTML=state.storeOffers.map((p,i)=>"<tr><td><b>"+esc(p.name)+"</b><div class='small'>Need</div><div class='tools'><input class='field needQty' style='width:86px' data-i='"+i+"' type='number' step='.1' value='"+n(p.need)+"'><span class='small'>"+esc(p.unit||"unit")+"</span></div></td>"+STORE_NAMES.map(s=>{let o=p.offers?.[s]||{};return"<td><div class='small'>"+esc(o.pack||"")+"</div><div class='tools'><span>$</span><input class='field offerPrice' style='width:82px' data-i='"+i+"' data-store='"+esc(s)+"' type='number' step='.01' value='"+(o.price??"")+"'></div><div class='tools'><input class='field offerAmount' style='width:72px' data-i='"+i+"' data-store='"+esc(s)+"' type='number' step='.1' value='"+(o.amount??"")+"'><span class='small'>"+esc(p.unit||"unit")+"</span></div><a class='small' target='_blank' rel='noopener' href='"+search(p.name+" "+s+" price "+(state.zip||""))+"'>check</a></td>"}).join("")+"<td><button class='btn danger removeStoreItem' data-i='"+i+"'>×</button></td></tr>").join("")||"<tr><td colspan='7'><div class='empty'>Import a profile with store prices or add a product.</div></td></tr>";
+  let plan=autoStorePlan();
+  $("#shopOptimizeSummary").innerHTML="<b>"+(state.shoppingMode==="lowest"?"Lowest price per item":state.shoppingMode==="one"?"Best one-store shop":"Best two-store shop")+"</b><br>"+(plan.stores.length?"Stores: "+plan.stores.join(" + "):"No priced stores yet")+" · Known basket "+money(plan.total)+(plan.missing?" · "+plan.missing+" item(s) still unpriced":"");
+  $("#optimizedBasket").innerHTML=plan.assignments.map(a=>{let opts=STORE_NAMES.filter(s=>Number.isFinite(offerCost(a.product,s))).map(s=>"<option "+(s===a.store?"selected":"")+" value='"+esc(s)+"'>"+esc(s)+" · "+money(offerCost(a.product,s))+"</option>").join("");return"<div class='row'><div><b>"+esc(a.product.name)+"</b><div class='small'>Need "+n(a.product.need)+" "+esc(a.product.unit||"unit")+"</div></div><select class='field itemStoreOverride' style='max-width:230px' data-id='"+esc(a.product.id)+"'><option value=''>Auto</option>"+opts+"</select></div>"}).join("")||"<div class='empty'>Set a Need quantity above to include a product in the optimizer.</div>";
+  $(".itemStoreOverride").forEach(x=>{let v=state.itemOverrides?.[x.dataset.id]||"";x.value=v;x.onchange=()=>{state.itemOverrides[x.dataset.id]=x.value;if(!x.value)delete state.itemOverrides[x.dataset.id];render()}});
+}
+function monthInfo(monthStr){let [y,m]=String(monthStr||ym()).split("-").map(Number);return{y,m,date:new Date(y,m-1,1)}}
+function dueInMonth(b,monthStr){let d=mdiff(b.startMonth||monthStr,monthStr);return d>=0&&d%Math.max(1,n(b.frequencyMonths)||1)===0}
+function renderBillCalendar(){
+  if(!state.calendarMonth)state.calendarMonth=ym();let {y,m,date}=monthInfo(state.calendarMonth),last=new Date(y,m,0).getDate(),first=date.getDay();
+  $("#calLabel").textContent=date.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  let cells=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(x=>"<div class='calDow'>"+x+"</div>");
+  for(let i=0;i<first;i++)cells.push("<div class='calCell muted'></div>");
+  for(let d=1;d<=last;d++){let bs=state.bills.filter(b=>dueInMonth(b,state.calendarMonth)&&Math.min(Math.max(1,n(b.dueDay)||1),last)===d);cells.push("<div class='calCell'><b>"+d+"</b>"+bs.map(b=>"<div class='calBill'>"+esc(b.name)+"<br><strong>"+money(b.amount)+"</strong></div>").join("")+"</div>")}
+  $("#billCalendar").innerHTML="<div class='calgrid'>"+cells.join("")+"</div>";
+}
+function shiftCalendar(delta){let {y,m}=monthInfo(state.calendarMonth||ym()),d=new Date(y,m-1+delta,1);state.calendarMonth=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");render()}
+function icsEscape(s){return String(s??"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;")}
+function exportBillsIcal(){
+  let start=monthInfo(ym()), lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Family Planner//Bills//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
+  for(let k=0;k<12;k++){let d=new Date(start.y,start.m-1+k,1),ms=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();state.bills.filter(b=>dueInMonth(b,ms)).forEach(b=>{let day=Math.min(Math.max(1,n(b.dueDay)||1),last),ds=d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(day).padStart(2,"0");lines.push("BEGIN:VEVENT","UID:"+icsEscape((b.id||b.name)+"-"+ds+"@family-planner"),"DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,""),"DTSTART;VALUE=DATE:"+ds,"SUMMARY:"+icsEscape("Bill: "+b.name+" - "+money(b.amount)),"DESCRIPTION:"+icsEscape("Family Planner bill. Amount: "+money(b.amount)),"END:VEVENT")})}
+  lines.push("END:VCALENDAR");let file=new File([lines.join("\r\n")],"family-planner-bills.ics",{type:"text/calendar"});shareOrDownload(file,"Family Planner bill calendar");
+}
+function budgetLines(){let out=["FAMILY PLANNER - MONTHLY BUDGET","Generated "+new Date().toLocaleString(),"","INCOME","Gross salary avg: "+money(salaryGross()),"After entered withholding: "+money(salaryNet()),"Average tips: "+money(tips()),"Modeled cash income: "+money(income()),"","MONTHLY CASH OUT","Bills due this month: "+money(billsMonth()),"Daily expenses: "+money(dailyMonth()),"Fuel: "+(fuelCost()==null?"MPG needed":money(fuelCost())),"Other/unlisted: "+money(state.otherCash),"","UNALLOCATED CASH: "+money(cashLeft()),"","BILLS"];state.bills.forEach(b=>out.push(b.name+" - "+money(b.amount)+" - due "+(b.dueDay||"not set")+" - every "+(b.frequencyMonths||1)+" month(s)"));out.push("","FOOD BENEFIT BUDGET","Food budget: "+money(state.ebtBudget),"Essentials: "+money(essentialsTotal()),"Selected meals: "+money(planTotal()),"Food remaining: "+money(foodLeft()),"","DRIVING","Known monthly miles: "+Math.round(monthlyMiles())+" mi","Gas rate: "+money(state.fuel.pricePerGal)+"/gal","MPG: "+(state.fuel.mpg||"not set"));return out}
+function makePdf(lines){
+  const clean=s=>String(s).replace(/[^\x20-\x7E]/g," ").replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
+  let wrapped=[];lines.forEach(l=>{let s=String(l);if(!s){wrapped.push("");return}while(s.length>86){let cut=s.lastIndexOf(" ",86);if(cut<30)cut=86;wrapped.push(s.slice(0,cut));s=s.slice(cut).trim()}wrapped.push(s)});
+  let pages=[];for(let i=0;i<wrapped.length;i+=48)pages.push(wrapped.slice(i,i+48));
+  let objs=["<< /Type /Catalog /Pages 2 0 R >>","", "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"];let kids=[];
+  pages.forEach((pg,idx)=>{let pageObj=4+idx*2,contentObj=pageObj+1;kids.push(pageObj+" 0 R");let stream="BT /F1 11 Tf 48 760 Td 14 TL "+pg.map((l,j)=>(j?"T* ":"")+"("+clean(l)+") Tj").join(" ")+" ET";objs[pageObj-1]="<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents "+contentObj+" 0 R >>";objs[contentObj-1]="<< /Length "+stream.length+" >>\\nstream\\n"+stream+"\\nendstream"});
+  objs[1]="<< /Type /Pages /Kids ["+kids.join(" ")+"] /Count "+pages.length+" >>";
+  let pdf="%PDF-1.4\\n",offs=[0];objs.forEach((o,i)=>{offs[i+1]=pdf.length;pdf+=(i+1)+" 0 obj\\n"+o+"\\nendobj\\n"});let xref=pdf.length;pdf+="xref\\n0 "+(objs.length+1)+"\\n0000000000 65535 f \\n";for(let i=1;i<=objs.length;i++)pdf+=String(offs[i]).padStart(10,"0")+" 00000 n \\n";pdf+="trailer\\n<< /Size "+(objs.length+1)+" /Root 1 0 R >>\\nstartxref\\n"+xref+"\\n%%EOF";return new Blob([pdf],{type:"application/pdf"})
+}
+async function shareOrDownload(file,title){try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title})}else{let a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}}catch(e){if(e?.name!=="AbortError"){let a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=file.name;a.click()}}}
+async function shareBudgetPdf(){let blob=makePdf(budgetLines()),file=new File([blob],"family-planner-budget-"+ym()+".pdf",{type:"application/pdf"});await shareOrDownload(file,"Family Planner budget")}
 function shell(){document.querySelector("#app").innerHTML=`
 <div class="shell">
 <header class="top"><div class="topin"><div class="brand"><div class="logo">FP</div><div><b>Family Planner</b><small id="labelTop"></small></div></div><div class="pill">Standalone · local-only data</div></div></header>
