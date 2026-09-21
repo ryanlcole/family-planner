@@ -408,7 +408,7 @@ function shell(){document.querySelector("#app").innerHTML=`
 <section class="view" data-v="driving"><div class="panel"><div class="split"><div><div class="eyebrow">Driving</div><h2>Route-based fuel estimate</h2></div><div class="stat"><small>Monthly fuel</small><div class="value amberText" id="fuelEstimate"></div></div></div></div><div class="grid g3 section"><label class="card"><span>Gas price / gallon</span><input class="field" id="gasPrice" type="number" step=".01"></label><label class="card"><span>Vehicle MPG</span><input class="field" id="mpg" type="number" step=".1"></label><div class="card"><label><span>Station / search phrase</span><input class="field" id="station"></label><a class="btn section" id="gasSearch" target="_blank" rel="noopener">Check gas price</a></div></div><div class="grid g4 stats section" id="driveStats"></div><div class="card section"><div class="split"><h2>Route legs</h2><button class="btn" id="addRoute">+ Route</button></div><div class="tablewrap section"><table><thead><tr><th>Route</th><th>Miles</th><th>Days/week</th><th>Weekly</th><th></th></tr></thead><tbody id="routeRows"></tbody></table></div></div></section>
 <section class="view" data-v="business"><div class="panel"><div class="split"><div><div class="eyebrow">Business</div><h2>Revenue, runway and owner income</h2><p class="muted">Business money stays separate from household cash. The planner shows operating profit, reserve, owner draw and the additional revenue needed to support that draw.</p></div><div class="stat"><small>Revenue gap</small><div class="value amberText" id="businessGap"></div></div></div></div><div class="grid g4 stats section" id="businessStats"></div><div class="grid g2 section"><div class="card"><h2>Business plan</h2><div class="grid g2 section"><label><span>Business name</span><input class="field" id="businessName"></label><label><span>Cash available</span><input class="field" id="businessCash" type="number" step=".01"></label><label><span>Tax reserve %</span><input class="field" id="businessTax" type="number" step=".01"></label><label><span>Desired owner draw / month</span><input class="field" id="businessDraw" type="number" step=".01"></label><label><span>Actual transfer to household / month</span><input class="field" id="businessTransfer" type="number" step=".01"></label></div><label class="section"><span>Notes</span><textarea class="field" id="businessNotes"></textarea></label></div><div class="card"><h2>Target math</h2><div id="businessTarget" class="section"></div></div></div><div class="grid g2 section"><div class="card"><div class="split"><div><h2>Revenue streams</h2><div class="small">Track subscriptions, donations, Kickstarter, Bitcoin, sales, grants, and random income separately.</div></div><div class="tools"><button class="btn" id="seedBizRevenue">Common channels</button><button class="btn" id="addBizRevenue">+ Revenue</button></div></div><div id="bizRevenueRows" class="section"></div></div><div class="card"><div class="split"><div><h2>Business expenses</h2><div class="small">Current and anticipated infrastructure, services, insurance, legal/accounting and other operating costs.</div></div><div class="tools"><button class="btn" id="seedBizCosts">Common costs</button><button class="btn" id="addBizExpense">+ Expense</button></div></div><div id="bizExpenseRows" class="section"></div></div></div><div class="card section"><div class="split"><div><h2>Business reserves / withholding</h2><div class="small">Set aside money before spending it. Use this for tax, insurance, legal/accounting, hosting growth, or other future obligations.</div></div><button class="btn" id="addBizReserve">+ Reserve</button></div><div id="bizReserveRows" class="section"></div></div><div class="card section"><div class="split"><div><h2>Business budget vs actual</h2><div class="small">Uses the same selected month as the household comparison.</div></div><span class="pill" id="businessActualMonth"></span></div><div class="tablewrap section"><table><thead><tr><th>Category</th><th>Budgeted</th><th>Actual</th><th>Favorable variance</th></tr></thead><tbody id="businessBvaRows"></tbody></table></div></div><div class="card section"><div class="split"><div><h2>Business position</h2><div class="small">Assets and liabilities affect business net worth; they do not automatically change monthly profit.</div></div></div><div class="grid g2 section"><div><div class="split"><h3>Assets</h3><button class="btn" id="addBizAsset">+ Asset</button></div><div id="bizAssetRows" class="section"></div></div><div><div class="split"><h3>Liabilities</h3><button class="btn" id="addBizLiability">+ Liability</button></div><div id="bizLiabilityRows" class="section"></div></div></div></div></section>
 <section class="view" data-v="reports"><div class="panel"><div class="split"><div><div class="eyebrow">Reports</div><h2>Household + business intelligence</h2><p class="muted">Percent-based dashboards stay fluid on phones and larger screens. Reports use the planner data already stored on this device.</p></div><label style="width:min(100%,190px)"><span>Report month</span><input class="field" id="reportMonth" type="month"></label></div><div class="grid g4 stats section" id="reportHeadline"></div></div><div class="grid g2 section"><div class="card"><h2>Cash allocation</h2><div id="reportCashBars" class="section"></div></div><div class="card"><h2>Income + withholding</h2><div id="reportIncomeBars" class="section"></div></div></div><div class="grid g2 section"><div class="card"><h2>Household budget vs actual</h2><div id="reportVariance" class="section"></div></div><div class="card"><h2>Business health</h2><div id="reportBusiness" class="section"></div></div></div><div class="grid g2 section"><div class="card"><h2>Food + shopping</h2><div id="reportFood" class="section"></div></div><div class="card"><h2>Position + obligations</h2><div id="reportPosition" class="section"></div></div></div></section>
-<section class="view" data-v="settings"><div class="panel"><div class="eyebrow">Settings</div><h2>Backup, privacy + app</h2><p class="muted">Household, food, meal and business values are edited in the sections where they are used. Settings is only for the app itself.</p></div><div class="card section"><div class="tools"><label class="btn primary">Restore JSON File<input hidden id="importFile" type="file" accept=".json,application/json,text/plain,application/octet-stream"></label><button class="btn" id="clipboardImportBtn">Import Clipboard</button><button class="btn green" id="shareBackupBtn">Save Backup to iCloud</button><button class="btn" id="exportBtn">Download Backup</button><button class="btn danger" id="resetBtn">Clear device</button></div><label class="section"><span>Paste planner JSON</span><textarea class="field" id="importJsonText" rows="5" placeholder="Paste a Family Planner backup here if iPhone Files will not hand the JSON to the Home Screen app."></textarea></label><button class="btn primary" id="pasteImportBtn">Import Pasted JSON</button><div class="small section" id="backupStatus"></div><div class="notice section"><b>iPhone Home Screen app:</b> a JSON downloaded in ChatGPT or Safari does not automatically enter the installed planner. Save it to Files, then use Restore JSON File from inside this app. If Files does not expose it, use Import Clipboard or paste the JSON above.</div><div class="notice section">Backup: use “Save Backup to iCloud,” then choose Save to Files → iCloud Drive. Internet searches stay separate and never write into planner storage automatically.</div><div class="notice section"><b>Privacy:</b> planner values stay in this browser unless you export or share a backup yourself.</div><div class="notice section"><b>iPhone:</b> Safari → Share → Add to Home Screen.</div></div></section>
+<section class="view" data-v="settings"><div class="panel"><div class="eyebrow">Settings</div><h2>Backup, privacy + app</h2><p class="muted">Household, food, meal and business values are edited in the sections where they are used. Settings is only for the app itself.</p></div><div class="card section"><div class="tools"><label class="btn primary">Restore JSON File<input hidden id="importFile" type="file" accept=".json,application/json,text/plain,application/octet-stream"></label><button class="btn" id="clipboardImportBtn">Import Clipboard</button><button class="btn green" id="shareBackupBtn">Save Backup to iCloud</button><button class="btn" id="exportBtn">Download Backup</button><button class="btn danger" id="resetBtn">Clear device</button></div><label class="section"><span>Paste planner JSON</span><textarea class="field" id="importJsonText" rows="5" placeholder="Paste a Family Planner backup here if iPhone Files will not hand the JSON to the Home Screen app."></textarea></label><button class="btn primary" id="pasteImportBtn">Import Pasted JSON</button><div class="notice section" id="importStatus">No import attempted in this session.</div><div class="small section" id="backupStatus"></div><div class="notice section"><b>iPhone Home Screen app:</b> a JSON downloaded in ChatGPT or Safari does not automatically enter the installed planner. Save it to Files, then use Restore JSON File from inside this app. If Files does not expose it, use Import Clipboard or paste the JSON above.</div><div class="notice section">Backup: use “Save Backup to iCloud,” then choose Save to Files → iCloud Drive. Internet searches stay separate and never write into planner storage automatically.</div><div class="notice section"><b>Privacy:</b> planner values stay in this browser unless you export or share a backup yourself.</div><div class="notice section"><b>iPhone:</b> Safari → Share → Add to Home Screen.</div></div></section>
 </main></div><div class="bottom" id="bottom"></div>`;
 }
 function nav(){let top=NAV.map(x=>`<button data-nav="${x[0]}">${x[2]}</button>`).join("");$("#tabs").innerHTML=top;$("#bottom").innerHTML=NAV.map(x=>`<button data-nav="${x[0]}"><b>${x[1]}</b>${x[2]}</button>`).join("");$$("[data-nav]").forEach(b=>b.onclick=()=>show(b.dataset.nav))}
@@ -494,7 +494,7 @@ $("#bizAssetRows").innerHTML=state.business.assets.map((a,i)=>`<div class="row">
 $("#bizLiabilityRows").innerHTML=state.business.liabilities.map((a,i)=>`<div class="row"><input class="field bln" data-i="${i}" value="${esc(a.name||"")}"><div class="tools"><input class="field blv" style="width:130px" data-i="${i}" type="number" step=".01" placeholder="Balance owed" value="${a.balance??""}"><button class="btn danger blr" data-i="${i}">×</button></div></div>`).join("")||`<div class="empty">No business liabilities entered.</div>`;
 
 if($("#reportMonth")){$("#reportMonth").value=state.actualMonth||ym();renderReports();}
-$("#houseLabel").value=state.householdLabel||"";$("#ebtBudget").value=state.ebtBudget||"";$("#dinnerSlots").value=state.dinnerSlots||30;$("#zip").value=state.zip||"";$("#backupStatus").textContent=state.lastBackupAt?"Last backup: "+new Date(state.lastBackupAt).toLocaleString():"No backup recorded on this device yet.";
+$("#houseLabel").value=state.householdLabel||"";$("#ebtBudget").value=state.ebtBudget||"";$("#dinnerSlots").value=state.dinnerSlots||30;$("#zip").value=state.zip||"";$("#backupStatus").textContent=(state.lastImportAt?"Last import: "+new Date(state.lastImportAt).toLocaleString()+(state.lastImportSource?" · "+state.lastImportSource:"")+" · ":"")+(state.lastBackupAt?"Last backup: "+new Date(state.lastBackupAt).toLocaleString():"No backup recorded on this device yet.");
 styleMoneyDecimals();bind();save();
 }
 function bind(){
@@ -532,16 +532,43 @@ $$(".ban").forEach(x=>x.onchange=()=>{state.business.assets[+x.dataset.i].name=x
 $$(".bln").forEach(x=>x.onchange=()=>{state.business.liabilities[+x.dataset.i].name=x.value;render()});$$(".blv").forEach(x=>x.onchange=()=>{state.business.liabilities[+x.dataset.i].balance=x.value===""?"":n(x.value);render()});$$(".blr").forEach(x=>x.onclick=()=>{state.business.liabilities.splice(+x.dataset.i,1);render()});
 $$(".rn").forEach(x=>x.onchange=()=>{state.fuel.routes[+x.dataset.i].name=x.value;render()});$$(".rm").forEach(x=>x.onchange=()=>{state.fuel.routes[+x.dataset.i].miles=x.value===""?"":n(x.value);render()});$$(".rd").forEach(x=>x.onchange=()=>{state.fuel.routes[+x.dataset.i].days=x.value===""?"":n(x.value);render()});$$(".rr").forEach(x=>x.onclick=()=>{state.fuel.routes.splice(+x.dataset.i,1);render()});
 }
-async function restorePlannerRaw(raw){
+function readPlannerFile(file){
+  return new Promise((resolve,reject)=>{
+    if(!file)return reject(new Error("No file selected"));
+    try{
+      if(typeof file.text==="function"){
+        file.text().then(resolve).catch(()=>fallback());
+      }else fallback();
+    }catch{fallback()}
+    function fallback(){
+      try{
+        const reader=new FileReader();
+        reader.onerror=()=>reject(reader.error||new Error("Could not read file"));
+        reader.onload=()=>resolve(String(reader.result||""));
+        reader.readAsText(file);
+      }catch(err){reject(err)}
+    }
+  });
+}
+function setImportStatus(message,kind=""){
+  const el=$("#importStatus");
+  if(!el)return;
+  el.textContent=message;
+  el.className="notice section"+(kind?" "+kind:"");
+}
+async function restorePlannerRaw(raw,sourceLabel="import"){
   let x;
   try{
     raw=String(raw||"").replace(/^\uFEFF/,"").trim();
+    if(!raw)throw new Error("Selected file was empty");
     if(raw.startsWith("```"))raw=raw.replace(/^```(?:json)?\s*/i,"").replace(/```\s*$/,"").trim();
     let a=raw.indexOf("{"),z=raw.lastIndexOf("}");
     if(a<0||z<a)throw new Error("No JSON object found");
     if(a>0||z<raw.length-1)raw=raw.slice(a,z+1);
     x=JSON.parse(raw);
   }catch(err){
+    console.error(err);
+    setImportStatus("Import failed: "+(err?.message||"invalid JSON"),"");
     alert("Could not read this as Family Planner JSON.");
     return false;
   }
@@ -566,13 +593,19 @@ async function restorePlannerRaw(raw){
     if(!state.actualMonth)state.actualMonth=ym();
     ["revenue","expenses","reserves","assets","liabilities"].forEach(k=>{if(!Array.isArray(state.business[k]))state.business[k]=[]});
     state.view="home";
+    state.lastImportAt=new Date().toISOString();
+    state.lastImportSource=sourceLabel;
     save();
-    alert("Planner data imported on this device.");
-    location.reload();
+    const verify=JSON.parse(localStorage.getItem(KEY)||"{}");
+    if(!verify.profileLoaded||verify.householdLabel!==state.householdLabel)throw new Error("Local storage verification failed");
+    render();
+    show("home");
+    alert("Planner data imported successfully.");
     return true;
   }catch(err){
     console.error(err);
-    alert("The JSON parsed, but this app version could not restore it.");
+    setImportStatus("Import failed after parsing: "+(err?.message||"restore error"),"");
+    alert("The JSON parsed, but this app version could not save it on this device.");
     return false;
   }
 }
@@ -589,7 +622,20 @@ $(".income").forEach(x=>x.onchange=()=>{state.income[x.dataset.k]=n(x.value);ren
 $("#houseLabel").onchange=e=>{state.householdLabel=e.target.value||"My Household";render()};$("#ebtBudget").onchange=e=>{state.ebtBudget=n(e.target.value);render()};$("#ebtCardBalance").onchange=e=>{state.ebtCardBalance=e.target.value===""?"":n(e.target.value);state.ebtBalanceUpdated=new Date().toISOString().slice(0,10);render()};$("#zip").onchange=e=>{state.zip=e.target.value.trim();render()};$("#businessName").onchange=e=>{state.business.name=e.target.value||"My Business";render()};$("#businessCash").onchange=e=>{state.business.cash=e.target.value===""?0:n(e.target.value);render()};$("#businessTax").onchange=e=>{state.business.taxReservePct=e.target.value===""?0:n(e.target.value);render()};$("#taxBusinessPct").onchange=e=>{state.business.taxReservePct=e.target.value===""?0:n(e.target.value);render()};$("#businessDraw").onchange=e=>{state.business.ownerDraw=e.target.value===""?0:n(e.target.value);render()};$("#businessTransfer").onchange=e=>{state.business.householdTransfer=e.target.value===""?0:n(e.target.value);render()};$("#businessNotes").onchange=e=>{state.business.notes=e.target.value;save()};
 $("#actualMonth").onchange=e=>{state.actualMonth=e.target.value||ym();actualBucket();render()};$("#reportMonth").onchange=e=>{state.actualMonth=e.target.value||ym();actualBucket();render()};$("#shoppingMode").onchange=e=>{state.shoppingMode=e.target.value;state.itemOverrides={};render()};$("#recipeSearch").onclick=()=>{let q=$("#mealSearch").value.trim()||"dinner";let a=$("#applianceFilter").value;open(search(q+" highly rated 5 star recipe "+a),"_blank","noopener")};$("#applianceFilter").onchange=()=>render();$("#incCalPrev").onclick=()=>shiftIncomeCalendar(-1);$("#incCalNext").onclick=()=>shiftIncomeCalendar(1);$("#medCalPrev").onclick=()=>shiftMedicalCalendar(-1);$("#medCalNext").onclick=()=>shiftMedicalCalendar(1);$("#calPrev").onclick=()=>shiftCalendar(-1);$("#calNext").onclick=()=>shiftCalendar(1);$("#exportIcal").onclick=exportBillsIcal;$("#shareBudgetPdf").onclick=shareBudgetPdf;
 const backupFile=()=>{let stamp=new Date().toISOString().replace(/[:.]/g,"-");return new File([JSON.stringify(state,null,2)],"family-planner-backup-"+stamp+".json",{type:"application/json"})};$("#shareBackupBtn").onclick=async()=>{let file=backupFile();try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Family Planner backup",text:"Private Family Planner backup"});state.lastBackupAt=new Date().toISOString();render()}else{$("#exportBtn").click()}}catch(e){if(e?.name!=="AbortError")$("#exportBtn").click()}};$("#exportBtn").onclick=()=>{let file=backupFile(),a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=file.name;a.click();state.lastBackupAt=new Date().toISOString();save();render();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
-$("#importFile").onchange=async e=>{let file=e.target.files?.[0];if(!file)return;await restorePlannerRaw(await file.text());e.target.value=""};
+$("#importFile").onchange=async e=>{
+  const input=e.target,file=input.files?.[0];
+  if(!file){setImportStatus("No file selected.");return}
+  setImportStatus("Reading "+file.name+" · "+file.size.toLocaleString()+" bytes…");
+  try{
+    const raw=await readPlannerFile(file);
+    setImportStatus("File read. Parsing "+file.name+"…");
+    await restorePlannerRaw(raw,file.name);
+  }catch(err){
+    console.error(err);
+    setImportStatus("Could not read "+file.name+": "+(err?.message||"unknown iPhone file error"));
+    alert("iPhone returned the file, but the planner could not read its contents. Try Import Clipboard or paste the JSON below.");
+  }finally{input.value=""}
+};
 $("#pasteImportBtn").onclick=async()=>{let raw=$("#importJsonText").value;if(!raw.trim()){alert("Paste the planner JSON first.");return}await restorePlannerRaw(raw)};
 $("#clipboardImportBtn").onclick=async()=>{try{let raw=await navigator.clipboard.readText();if(!raw.trim())throw new Error("Clipboard empty");$("#importJsonText").value=raw;await restorePlannerRaw(raw)}catch(err){alert("Clipboard import was blocked or empty. Paste the JSON into the box below instead.")}};
 $("#resetBtn").onclick=()=>{if(confirm("Clear all planner data from this browser?")){state=blank();render();show("home")}};
