@@ -21,17 +21,36 @@ const RECIPES=[
 {id:"burgers",name:"Hamburger Night",servings:4,cost:10,tags:["protein"],q:"simple homemade hamburgers recipe",ing:[["ground beef",1.5,"lb"],["burger buns",4,"count"],["cheddar",4,"oz"]]},
 {id:"loadedPotatoes",name:"Loaded Chicken Baked Potatoes",servings:4,cost:8,tags:["protein","calcium"],q:"loaded chicken baked potato recipe",ing:[["russet potatoes",2,"lb"],["chicken",1,"lb"],["cheddar",6,"oz"],["sour cream",8,"oz"]]}
 ];
-const blank=()=>({version:3,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,dinnerSlots:30,zip:"",prices:[],essentials:[],plan:{},cooked:{},purchased:{},purchaseCost:{},income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,householdTransfer:0,revenue:[],expenses:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
+const blank=()=>({version:4,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,dinnerSlots:30,zip:"",prices:[],essentials:[],inventory:[],plan:{},cooked:{},purchased:{},purchaseCost:{},income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,householdTransfer:0,revenue:[],expenses:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
 let state=(()=>{try{return Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||"{}"))}catch{return blank()}})();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], n=v=>Number.isFinite(+v)?+v:0, money=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n(v)), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])), search=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
 const save=()=>localStorage.setItem(KEY,JSON.stringify(state)), ym=()=>new Date().toISOString().slice(0,7), days=()=>new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
 const mdiff=(a,b)=>{let A=(a||ym()).split("-").map(Number),B=(b||ym()).split("-").map(Number);return(B[0]-A[0])*12+B[1]-A[1]};
 const due=b=>{let d=mdiff(b.startMonth,ym());return d>=0&&d%Math.max(1,n(b.frequencyMonths)||1)===0};
 const essentialsTotal=()=>state.essentials.reduce((s,e)=>s+n(e.qty)*n(e.unitPrice),0);
-const planTotal=()=>Object.entries(state.plan).reduce((s,[id,c])=>s+n(c)*(RECIPES.find(r=>r.id===id)?.cost||0),0);
+function normalizePlan(){
+  if(!state.plan||typeof state.plan!=="object")state.plan={};
+  Object.entries(state.plan).forEach(([id,v])=>{
+    if(typeof v==="number"){let old=Math.max(1,n(v));state.plan[id]={count:old,dates:[],prepared:Math.min(old,n(state.cooked?.[id])),addedAt:0}}
+    else if(!v||typeof v!=="object"){delete state.plan[id]}
+    else{v.count=Math.max(1,n(v.count)||Math.max(1,(Array.isArray(v.dates)?v.dates.length:0)));v.dates=Array.isArray(v.dates)?[...new Set(v.dates.filter(Boolean))]:[];v.prepared=Math.min(v.count,Math.max(0,n(v.prepared)));v.addedAt=n(v.addedAt)}
+  });
+}
+normalizePlan();
+const planEntry=id=>state.plan[id]||null;
+const planCount=e=>e?Math.max(1,n(e.count)||1):0;
+const preparedFor=e=>e?Math.min(planCount(e),Math.max(0,n(e.prepared))):0;
+const remainingFor=e=>Math.max(0,planCount(e)-preparedFor(e));
+const plannedCount=()=>Object.values(state.plan).reduce((s,e)=>s+planCount(e),0);
+const preparedCount=()=>Object.values(state.plan).reduce((s,e)=>s+preparedFor(e),0);
+const remainingPlanned=()=>Object.values(state.plan).reduce((s,e)=>s+remainingFor(e),0);
+const remainingMeals=()=>Math.max(0,n(state.dinnerSlots)-preparedCount());
+const planTotal=()=>Object.entries(state.plan).reduce((s,[id,e])=>s+planCount(e)*(RECIPES.find(r=>r.id===id)?.cost||0),0);
 const foodLeft=()=>n(state.ebtBudget)-essentialsTotal()-planTotal();
-const batches=()=>Object.values(state.plan).reduce((a,b)=>a+n(b),0), slots=()=>Math.max(0,n(state.dinnerSlots)-batches()), target=()=>slots()?Math.max(0,foodLeft()/slots()):0;
+const batches=()=>plannedCount(), slots=()=>Math.max(0,n(state.dinnerSlots)-plannedCount()), target=()=>slots()?Math.max(0,foodLeft()/slots()):0;
 const repeats=r=>Math.max(0,Math.min(slots(),Math.floor(Math.max(0,foodLeft())/Math.max(.01,r.cost))));
+const invKey=(name,unit)=>String(name||"").trim().toLowerCase()+"|"+String(unit||"").trim().toLowerCase();
+const inventoryQty=(name,unit)=>state.inventory.filter(i=>invKey(i.name,i.unit)===invKey(name,unit)).reduce((s,i)=>s+n(i.qty),0);
 const salaryGross=()=>n(state.income.salaryAnnual)/12, salaryNet=()=>salaryGross()*(1-n(state.income.withholdingPct)/100), tips=rate=>n(rate??state.income.tipsAvg)*n(state.income.tipNights)*52/12, income=()=>salaryNet()+tips()+n(state.business?.householdTransfer);
 const billsMonth=()=>state.bills.filter(due).reduce((s,b)=>s+n(b.amount),0), billsAvg=()=>state.bills.reduce((s,b)=>s+n(b.amount)/Math.max(1,n(b.frequencyMonths)||1),0);
 const dailyMonth=()=>state.dailyExpenses.reduce((s,d)=>s+n(d.amountPerDay)*days(),0), weeklyMiles=()=>state.fuel.routes.reduce((s,r)=>s+(n(r.miles)>0&&n(r.days)>0?n(r.miles)*n(r.days):0),0), monthlyMiles=()=>weeklyMiles()*52/12;
@@ -55,7 +74,14 @@ const businessNetWorth=()=>businessAssetTotal()-businessLiabilityTotal();
 const businessRevenueTarget=()=>{let p=Math.min(.99,Math.max(0,n(state.business.taxReservePct)/100));return businessExpenses()+n(state.business.ownerDraw)/(1-p)};
 const businessRevenueGap=()=>Math.max(0,businessRevenueTarget()-businessRevenue());
 const businessRunway=()=>{let burn=Math.max(0,-businessAfterOwner());return burn>0?n(state.business.cash)/burn:null};
-function grocery(){let m={};const add=(name,q,u,src)=>{let k=name+"|"+u;if(!m[k])m[k]={key:k,name,qty:0,unit:u,sources:new Set};m[k].qty+=n(q);m[k].sources.add(src)};state.essentials.forEach(e=>n(e.qty)>0&&add(e.name,e.qty,e.unit,"essential"));Object.entries(state.plan).forEach(([id,c])=>{let r=RECIPES.find(x=>x.id===id);if(r)r.ing.forEach(i=>add(i[0],i[1]*n(c),i[2],r.name))});return Object.values(m)}
+function grocery(){
+  let m={};
+  const add=(name,q,u,src)=>{let k=name+"|"+u;if(!m[k])m[k]={key:k,name,qty:0,unit:u,sources:new Set};m[k].qty+=n(q);m[k].sources.add(src)};
+  state.essentials.forEach(e=>n(e.qty)>0&&add(e.name,e.qty,e.unit,"essential"));
+  Object.entries(state.plan).forEach(([id,e])=>{let r=RECIPES.find(x=>x.id===id),need=remainingFor(e);if(r&&need>0)r.ing.forEach(i=>add(i[0],i[1]*need,i[2],r.name))});
+  state.inventory.forEach(i=>{let need=Math.max(0,n(i.minQty)-n(i.qty));if(need>0)add(i.name,need,i.unit||"item","inventory restock")});
+  return Object.values(m).map(x=>{let have=inventoryQty(x.name,x.unit),buy=Math.max(0,x.qty-have);return{...x,have,buy}}).filter(x=>x.buy>0);
+}
 
 const STORE_NAMES=["Walmart","Lidl","Lowes Foods","Family Dollar","Costco"];
 const offerCost=(p,store)=>{let o=p.offers?.[store];if(!o||n(o.price)<=0||n(o.amount)<=0||n(p.need)<=0)return Infinity;return Math.ceil(n(p.need)/n(o.amount))*n(o.price)};
