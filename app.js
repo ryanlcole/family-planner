@@ -37,6 +37,24 @@ const billsMonth=()=>state.bills.filter(due).reduce((s,b)=>s+n(b.amount),0), bil
 const dailyMonth=()=>state.dailyExpenses.reduce((s,d)=>s+n(d.amountPerDay)*days(),0), weeklyMiles=()=>state.fuel.routes.reduce((s,r)=>s+(n(r.miles)>0&&n(r.days)>0?n(r.miles)*n(r.days):0),0), monthlyMiles=()=>weeklyMiles()*52/12;
 const fuelCost=()=>n(state.fuel.mpg)>0?monthlyMiles()/n(state.fuel.mpg)*n(state.fuel.pricePerGal):null, cashLeft=()=>income()-billsMonth()-dailyMonth()-(fuelCost()||0)-n(state.otherCash), assetTotal=()=>state.assets.reduce((s,a)=>s+n(a.value),0), liabilityTotal=()=>state.liabilities.reduce((s,a)=>s+n(a.balance),0), netWorth=()=>assetTotal()-liabilityTotal();
 const precise=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:6}).format(n(v));
+const reserveMonthly=f=>f.basis==="miles"?(n(f.intervalMiles)>0?n(f.targetAmount)*monthlyMiles()/n(f.intervalMiles):0):(n(f.everyMonths)>0?n(f.targetAmount)/n(f.everyMonths):0);
+const sinkingMonthly=()=>state.sinkingFunds.reduce((s,f)=>s+reserveMonthly(f),0);
+const householdOutflow=()=>billsMonth()+dailyMonth()+(fuelCost()||0)+n(state.otherCash)+sinkingMonthly();
+const householdAfterReserves=()=>income()-householdOutflow();
+const householdIncomeGap=()=>Math.max(0,-householdAfterReserves());
+const monthlyEq=x=>n(x.amount)/Math.max(1,n(x.everyMonths)||1);
+const businessRevenue=()=>state.business.revenue.reduce((s,x)=>s+monthlyEq(x),0);
+const businessExpenses=()=>state.business.expenses.reduce((s,x)=>s+monthlyEq(x),0);
+const businessOperatingProfit=()=>businessRevenue()-businessExpenses();
+const businessTaxReserve=()=>Math.max(0,businessOperatingProfit())*Math.max(0,n(state.business.taxReservePct))/100;
+const businessAfterReserve=()=>businessOperatingProfit()-businessTaxReserve();
+const businessAfterOwner=()=>businessAfterReserve()-n(state.business.ownerDraw);
+const businessAssetTotal=()=>state.business.assets.reduce((s,a)=>s+n(a.value),0);
+const businessLiabilityTotal=()=>state.business.liabilities.reduce((s,a)=>s+n(a.balance),0);
+const businessNetWorth=()=>businessAssetTotal()-businessLiabilityTotal();
+const businessRevenueTarget=()=>{let p=Math.min(.99,Math.max(0,n(state.business.taxReservePct)/100));return businessExpenses()+n(state.business.ownerDraw)/(1-p)};
+const businessRevenueGap=()=>Math.max(0,businessRevenueTarget()-businessRevenue());
+const businessRunway=()=>{let burn=Math.max(0,-businessAfterOwner());return burn>0?n(state.business.cash)/burn:null};
 function grocery(){let m={};const add=(name,q,u,src)=>{let k=name+"|"+u;if(!m[k])m[k]={key:k,name,qty:0,unit:u,sources:new Set};m[k].qty+=n(q);m[k].sources.add(src)};state.essentials.forEach(e=>n(e.qty)>0&&add(e.name,e.qty,e.unit,"essential"));Object.entries(state.plan).forEach(([id,c])=>{let r=RECIPES.find(x=>x.id===id);if(r)r.ing.forEach(i=>add(i[0],i[1]*n(c),i[2],r.name))});return Object.values(m)}
 
 const STORE_NAMES=["Walmart","Lidl","Lowes Foods","Family Dollar","Costco"];
