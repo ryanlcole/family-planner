@@ -86,7 +86,7 @@ const sinkingMonthly=()=>state.sinkingFunds.reduce((s,f)=>s+reserveMonthly(f),0)
 const householdOutflow=()=>billsMonth()+dailyMonth()+(fuelCost()||0)+n(state.otherCash)+sinkingMonthly()+medicalMonthly()+taxItemMonthly();
 const householdAfterReserves=()=>income()-householdOutflow();
 const householdIncomeGap=()=>Math.max(0,-householdAfterReserves());
-const monthlyEq=x=>n(x.amount)/Math.max(1,n(x.everyMonths)||1);
+const monthlyEq=x=>{let cad=x.cadence||"recurring";if(cad==="annual")return n(x.amount)/12;if(cad==="one-time"||cad==="random")return 0;return n(x.amount)/Math.max(1,n(x.everyMonths)||1)};
 const taxItemMonthly=()=>state.taxItems.reduce((s,x)=>s+n(x.expected)/Math.max(1,n(x.everyMonths)||1),0);
 const medicalMonthly=()=>state.medical.items.reduce((s,x)=>s+n(x.expected)/Math.max(1,n(x.everyMonths)||1),0);
 const taxActualTotal=()=>state.taxItems.reduce((s,x)=>s+n(x.actual),0);
