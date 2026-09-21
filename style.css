@@ -6,3 +6,6 @@ button,input,textarea,select{font:inherit}.shell{max-width:1180px;margin:auto;pa
 .priceMatrix th,.priceMatrix td{min-width:150px}.priceMatrix th:first-child,.priceMatrix td:first-child{position:sticky;left:0;z-index:2;background:#101a27;min-width:170px}.calendar{overflow:auto}.calgrid{display:grid;grid-template-columns:repeat(7,minmax(92px,1fr));gap:6px;min-width:700px}.calDow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#91a4b9;padding:5px 7px}.calCell{min-height:92px;border:1px solid var(--line);border-radius:12px;background:#0c141f;padding:7px}.calBill{margin-top:6px;padding:6px;border-radius:9px;background:#18293d;font-size:11px}.calBill strong{color:var(--amber)}@media(max-width:680px){.priceMatrix th,.priceMatrix td{min-width:135px}.calgrid{min-width:640px}}
 
 @media(max-width:680px){.bottom button{font-size:8px}.bottom button b{font-size:16px}.businessCard{min-width:0}.tablewrap table{font-size:13px}}
+
+.plannedMeal{border-color:#3a8f67;box-shadow:0 0 0 1px #3a8f6733 inset}.dateChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.dateChip{border:1px solid #35506f;background:#122438;color:#dceaf7;border-radius:999px;padding:7px 9px;font:inherit;font-size:12px}.dateChip:active{transform:scale(.98)}.recipe .field[type=date]{min-width:165px}
+@media(max-width:680px){.dateChips{gap:5px}.dateChip{font-size:11px;padding:6px 8px}}
