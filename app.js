@@ -1,5 +1,5 @@
 const KEY="familyPlannerLocalV2";
-const NAV=[["home","⌂","Home"],["food","◫","Food"],["meals","◉","Meals"],["groceries","✓","List"],["budget","$","Budget"],["driving","↗","Drive"]];
+const NAV=[["home","⌂","Home"],["food","◫","Food"],["meals","◉","Meals"],["groceries","✓","List"],["budget","$","Budget"],["driving","↗","Drive"],["settings","⚙","Settings"]];
 const RECIPES=[
 {id:"greekChicken",name:"Greek Chicken",servings:6,cost:10,tags:["protein"],q:"Greek chicken recipe",ing:[["chicken",2,"lb"],["lemon",2,"count"],["plain yogurt",8,"oz"]]},
 {id:"bakedPotato",name:"Baked Potato Night",servings:4,cost:6,tags:["cheap","calcium"],q:"baked potato dinner recipe",ing:[["russet potatoes",2,"lb"],["cheddar",6,"oz"],["sour cream",8,"oz"]]},
@@ -40,7 +40,7 @@ function shell(){document.querySelector("#app").innerHTML=`
 <section class="view" data-v="settings"><div class="panel"><div class="eyebrow">Settings</div><h2>Private profile + backup</h2><p class="muted">Your data stays in this browser unless you export it yourself.</p></div><div class="card section"><div class="grid g3"><label><span>Household label</span><input class="field" id="houseLabel"></label><label><span>Food budget</span><input class="field" id="ebtBudget" type="number"></label><label><span>Dinner slots</span><input class="field" id="dinnerSlots" type="number"></label><label><span>ZIP for manual searches</span><input class="field" id="zip"></label></div><div class="tools section"><label class="btn primary">Import private profile<input hidden id="importFile" type="file" accept="application/json"></label><button class="btn" id="exportBtn">Export backup</button><button class="btn danger" id="resetBtn">Clear device</button></div><div class="notice section">Internet boundary: searches open in a separate browser page. Search results never write into planner storage automatically.</div><div class="notice section"><b>iPhone:</b> Safari → Share → Add to Home Screen.</div></div></section>
 </main></div><div class="bottom" id="bottom"></div>`;
 }
-function nav(){let top=NAV.map(x=>`<button data-nav="${x[0]}">${x[2]}</button>`).join("")+`<button data-nav="settings">Settings</button>`;$("#tabs").innerHTML=top;$("#bottom").innerHTML=NAV.map(x=>`<button data-nav="${x[0]}"><b>${x[1]}</b>${x[2]}</button>`).join("");$$("[data-nav]").forEach(b=>b.onclick=()=>show(b.dataset.nav))}
+function nav(){let top=NAV.map(x=>`<button data-nav="${x[0]}">${x[2]}</button>`).join("");$("#tabs").innerHTML=top;$("#bottom").innerHTML=NAV.map(x=>`<button data-nav="${x[0]}"><b>${x[1]}</b>${x[2]}</button>`).join("");$$("[data-nav]").forEach(b=>b.onclick=()=>show(b.dataset.nav))}
 function show(v){state.view=v;$$(".view").forEach(x=>x.classList.toggle("active",x.dataset.v===v));$$("[data-nav]").forEach(x=>x.classList.toggle("active",x.dataset.nav===v));save();scrollTo({top:0,behavior:"smooth"})}
 function render(){
 $("#labelTop").textContent=(state.householdLabel||"My Household")+" · local-only";
