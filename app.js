@@ -26,7 +26,7 @@ const RECIPE_META={
 };
 const ALL_APPLIANCES=["fridge/freezer","stove","air fryer","mixer","blender","toaster","bread machine","Instant Pot","Crock Pot"];
 RECIPES.forEach(r=>Object.assign(r,RECIPE_META[r.id]||{}, {rating:r.rating??null,ratingCount:r.ratingCount??null,sourceName:r.sourceName||"Household recipe",sourceUrl:r.sourceUrl||""}));
-const blank=()=>({version:6,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,dinnerSlots:30,zip:"",prices:[],essentials:[],inventory:[],cookbook:[],plan:{},cooked:{},purchased:{},purchaseCost:{},priceHistory:[],income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",actualMonth:"",actualHistory:{},assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,householdTransfer:0,revenue:[],expenses:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
+const blank=()=>({version:7,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,dinnerSlots:30,zip:"",prices:[],essentials:[],inventory:[],cookbook:[],plan:{},cooked:{},purchased:{},purchaseCost:{},priceHistory:[],income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},incomeSources:[],incomeCalendarMonth:"",taxProfile:{federalPct:12,ncPct:4.75,socialSecurityPct:6.2,medicarePct:1.45},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",actualMonth:"",actualHistory:{},assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,householdTransfer:0,revenue:[],expenses:[],reserves:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
 let state=(()=>{try{return Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||"{}"))}catch{return blank()}})();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], n=v=>Number.isFinite(+v)?+v:0, money=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n(v)), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])), search=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
 const save=()=>localStorage.setItem(KEY,JSON.stringify(state)), ym=()=>new Date().toISOString().slice(0,7), days=()=>new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
@@ -60,7 +60,23 @@ const activeRecipes=()=>Object.entries(state.plan).filter(([,e])=>remainingFor(e
 const expectedMealCost=r=>r.ing.reduce((s,i)=>{let buy=Math.max(0,n(i[1])-inventoryQty(i[0],i[2])),v=ingredientExpected(i[0],buy,i[2]);return s+(v==null?0:v)},0);
 const invKey=(name,unit)=>String(name||"").trim().toLowerCase()+"|"+String(unit||"").trim().toLowerCase();
 const inventoryQty=(name,unit)=>state.inventory.filter(i=>invKey(i.name,i.unit)===invKey(name,unit)).reduce((s,i)=>s+n(i.qty),0);
-const salaryGross=()=>n(state.income.salaryAnnual)/12, salaryNet=()=>salaryGross()*(1-n(state.income.withholdingPct)/100), tips=rate=>n(rate??state.income.tipsAvg)*n(state.income.tipNights)*52/12, income=()=>salaryNet()+tips()+n(state.business?.householdTransfer), ebtIncome=()=>n(state.ebtBudget), householdResources=()=>income()+ebtIncome();
+const salaryGross=()=>n(state.income.salaryAnnual)/12, salaryNet=()=>salaryGross()*(1-n(state.income.withholdingPct)/100), tips=rate=>n(rate??state.income.tipsAvg)*n(state.income.tipNights)*52/12;
+const payrollTaxPct=()=>n(state.taxProfile?.federalPct)+n(state.taxProfile?.ncPct)+n(state.taxProfile?.socialSecurityPct)+n(state.taxProfile?.medicarePct);
+const sourceNet=s=>{let gross=n(s.amount);return s.taxMode==="payroll"?gross*(1-payrollTaxPct()/100):gross};
+const dateKey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function incomeDatesForMonth(s,month){
+  let [y,m]=String(month||ym()).split("-").map(Number),last=new Date(y,m,0).getDate(),out=[],start=s.startDate?new Date(s.startDate+"T12:00:00"):new Date(y,m-1,1,12),cad=s.cadence||"monthly",monthStart=new Date(y,m-1,1,12),monthEnd=new Date(y,m-1,last,12);
+  const push=d=>{if(d>=monthStart&&d<=monthEnd)out.push(dateKey(d))};
+  if(cad==="random"){push(start);return out}
+  if(cad==="monthly"){push(new Date(y,m-1,Math.min(last,start.getDate()),12));return out}
+  if(cad==="twice-monthly"){let d1=Math.min(last,start.getDate()),d2=Math.min(last,d1+15);push(new Date(y,m-1,d1,12));if(d2!==d1)push(new Date(y,m-1,d2,12));return out}
+  let step=cad==="daily"?1:cad==="weekly"?7:cad==="biweekly"?14:cad==="tips"?Math.max(1,Math.round(7/Math.max(1,n(s.daysPerWeek)||1))):7;
+  let d=new Date(start);while(d<monthStart)d.setDate(d.getDate()+step);while(d<=monthEnd){push(d);d=new Date(d);d.setDate(d.getDate()+step)}return out;
+}
+const incomeSourceEvents=month=>state.incomeSources.flatMap(s=>incomeDatesForMonth(s,month).map(date=>({date,source:s,gross:n(s.amount),net:sourceNet(s)})));
+const flexibleIncomeMonth=month=>incomeSourceEvents(month||ym()).reduce((sum,e)=>sum+e.net,0);
+const income=()=>state.incomeSources.length?flexibleIncomeMonth(ym())+n(state.business?.householdTransfer):salaryNet()+tips()+n(state.business?.householdTransfer);
+const ebtIncome=()=>n(state.ebtBudget), householdResources=()=>income()+ebtIncome();
 const billsMonth=()=>state.bills.filter(due).reduce((s,b)=>s+n(b.amount),0), billsAvg=()=>state.bills.reduce((s,b)=>s+n(b.amount)/Math.max(1,n(b.frequencyMonths)||1),0);
 const dailyMonth=()=>state.dailyExpenses.reduce((s,d)=>s+n(d.amountPerDay)*days(),0), weeklyMiles=()=>state.fuel.routes.reduce((s,r)=>s+(n(r.miles)>0&&n(r.days)>0?n(r.miles)*n(r.days):0),0), monthlyMiles=()=>weeklyMiles()*52/12;
 const fuelCost=()=>n(state.fuel.mpg)>0?monthlyMiles()/n(state.fuel.mpg)*n(state.fuel.pricePerGal):null, cashLeft=()=>income()-billsMonth()-dailyMonth()-(fuelCost()||0)-n(state.otherCash), assetTotal=()=>state.assets.reduce((s,a)=>s+n(a.value),0), assetLowTotal=()=>state.assets.reduce((s,a)=>s+(a.value!==""&&a.value!=null?n(a.value):n(a.valueLow)),0), assetHighTotal=()=>state.assets.reduce((s,a)=>s+(a.value!==""&&a.value!=null?n(a.value):n(a.valueHigh||a.valueLow)),0), liabilityTotal=()=>state.liabilities.reduce((s,a)=>s+n(a.balance),0), netWorth=()=>assetTotal()-liabilityTotal(), netWorthLow=()=>assetLowTotal()-liabilityTotal(), netWorthHigh=()=>assetHighTotal()-liabilityTotal();
@@ -73,14 +89,15 @@ const householdIncomeGap=()=>Math.max(0,-householdAfterReserves());
 const monthlyEq=x=>n(x.amount)/Math.max(1,n(x.everyMonths)||1);
 const businessRevenue=()=>state.business.revenue.reduce((s,x)=>s+monthlyEq(x),0);
 const businessExpenses=()=>state.business.expenses.reduce((s,x)=>s+monthlyEq(x),0);
+const businessReserveLines=()=>state.business.reserves.reduce((s,x)=>s+monthlyEq(x),0);
 const businessOperatingProfit=()=>businessRevenue()-businessExpenses();
 const businessTaxReserve=()=>Math.max(0,businessOperatingProfit())*Math.max(0,n(state.business.taxReservePct))/100;
-const businessAfterReserve=()=>businessOperatingProfit()-businessTaxReserve();
+const businessAfterReserve=()=>businessOperatingProfit()-businessTaxReserve()-businessReserveLines();
 const businessAfterOwner=()=>businessAfterReserve()-n(state.business.householdTransfer);
 const businessAssetTotal=()=>state.business.assets.reduce((s,a)=>s+n(a.value),0);
 const businessLiabilityTotal=()=>state.business.liabilities.reduce((s,a)=>s+n(a.balance),0);
 const businessNetWorth=()=>businessAssetTotal()-businessLiabilityTotal();
-const businessRevenueTarget=()=>{let p=Math.min(.99,Math.max(0,n(state.business.taxReservePct)/100));return businessExpenses()+n(state.business.ownerDraw)/(1-p)};
+const businessRevenueTarget=()=>{let p=Math.min(.99,Math.max(0,n(state.business.taxReservePct)/100));return businessExpenses()+businessReserveLines()+n(state.business.ownerDraw)/(1-p)};
 const businessRevenueGap=()=>Math.max(0,businessRevenueTarget()-businessRevenue());
 const businessRunway=()=>{let burn=Math.max(0,-businessAfterOwner());return burn>0?n(state.business.cash)/burn:null};
 const daysInMonth=m=>{let [y,mo]=String(m||ym()).split("-").map(Number);return new Date(y,mo,0).getDate()};
