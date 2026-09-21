@@ -31,6 +31,28 @@ let state=(()=>{try{return Object.assign(blank(),JSON.parse(localStorage.getItem
 (()=>{let b=blank();state.income=Object.assign({},b.income,state.income||{});state.taxProfile=Object.assign({},b.taxProfile,state.taxProfile||{});state.medical=Object.assign({},b.medical,state.medical||{});state.fuel=Object.assign({},b.fuel,state.fuel||{});state.business=Object.assign({},b.business,state.business||{});["prices","essentials","inventory","cookbook","priceHistory","incomeSources","taxItems","bills","dailyExpenses","storeOffers","assets","liabilities","sinkingFunds"].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[]});if(!Array.isArray(state.medical.items))state.medical.items=[];["revenue","expenses","reserves","assets","liabilities"].forEach(k=>{if(!Array.isArray(state.business[k]))state.business[k]=[]});state.version=7})();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], n=v=>Number.isFinite(+v)?+v:0, money=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n(v)), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])), search=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
 const save=()=>localStorage.setItem(KEY,JSON.stringify(state)), ym=()=>new Date().toISOString().slice(0,7), days=()=>new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
+function styleMoneyDecimals(root=document.querySelector("#app")){
+  if(!root)return;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  const nodes=[];
+  while(walker.nextNode()){
+    const node=walker.currentNode,parent=node.parentElement;
+    if(!parent||parent.closest(".money-decimal")||parent.matches("input,textarea,option,script,style"))continue;
+    if(/\$[\d,]+\.\d{2,6}/.test(node.nodeValue||""))nodes.push(node);
+  }
+  nodes.forEach(node=>{
+    const text=node.nodeValue||"",re=/(\$[\d,]+)(\.\d{2,6})/g;
+    let last=0,m,frag=document.createDocumentFragment();
+    while((m=re.exec(text))){
+      if(m.index>last)frag.append(document.createTextNode(text.slice(last,m.index)));
+      frag.append(document.createTextNode(m[1]));
+      const cents=document.createElement("span");cents.className="money-decimal";cents.textContent=m[2];frag.append(cents);
+      last=re.lastIndex;
+    }
+    if(last<text.length)frag.append(document.createTextNode(text.slice(last)));
+    node.replaceWith(frag);
+  });
+}
 const mdiff=(a,b)=>{let A=(a||ym()).split("-").map(Number),B=(b||ym()).split("-").map(Number);return(B[0]-A[0])*12+B[1]-A[1]};
 const due=b=>{let d=mdiff(b.startMonth,ym());return d>=0&&d%Math.max(1,n(b.frequencyMonths)||1)===0};
 const essentialsTotal=()=>state.essentials.reduce((s,e)=>s+n(e.qty)*n(e.unitPrice),0);
@@ -387,7 +409,7 @@ $("#bizLiabilityRows").innerHTML=state.business.liabilities.map((a,i)=>`<div cla
 
 if($("#reportMonth")){$("#reportMonth").value=state.actualMonth||ym();renderReports();}
 $("#houseLabel").value=state.householdLabel||"";$("#ebtBudget").value=state.ebtBudget||"";$("#dinnerSlots").value=state.dinnerSlots||30;$("#zip").value=state.zip||"";$("#backupStatus").textContent=state.lastBackupAt?"Last backup: "+new Date(state.lastBackupAt).toLocaleString():"No backup recorded on this device yet.";
-bind();save();
+styleMoneyDecimals();bind();save();
 }
 function bind(){
 [["isn","name"],["isa","amount"],["isc","cadence"],["isd","startDate"],["isw","daysPerWeek"],["ist","taxMode"]].forEach(([cl,k])=>$$("."+cl).forEach(x=>x.onchange=()=>{let s=state.incomeSources[+x.dataset.i];s[k]=["amount","daysPerWeek"].includes(k)?(x.value===""?"":n(x.value)):x.value;render()}));$$(".isr").forEach(x=>x.onclick=()=>{state.incomeSources.splice(+x.dataset.i,1);render()});
