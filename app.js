@@ -1,5 +1,5 @@
 const KEY="familyPlannerLocalV2";
-const NAV=[["home","⌂","Home"],["food","◫","Food"],["meals","◉","Meals"],["groceries","✓","List"],["budget","$","Budget"],["driving","↗","Drive"],["settings","⚙","Settings"]];
+const NAV=[["home","⌂","Home"],["food","◫","Food"],["meals","◉","Meals"],["groceries","✓","List"],["budget","$","Budget"],["driving","↗","Drive"],["business","▣","Business"],["settings","⚙","Settings"]];
 const RECIPES=[
 {id:"greekChicken",name:"Greek Chicken",servings:6,cost:10,tags:["protein"],q:"Greek chicken recipe",ing:[["chicken",2,"lb"],["lemon",2,"count"],["plain yogurt",8,"oz"]]},
 {id:"bakedPotato",name:"Baked Potato Night",servings:4,cost:6,tags:["cheap","calcium"],q:"baked potato dinner recipe",ing:[["russet potatoes",2,"lb"],["cheddar",6,"oz"],["sour cream",8,"oz"]]},
@@ -21,7 +21,7 @@ const RECIPES=[
 {id:"burgers",name:"Hamburger Night",servings:4,cost:10,tags:["protein"],q:"simple homemade hamburgers recipe",ing:[["ground beef",1.5,"lb"],["burger buns",4,"count"],["cheddar",4,"oz"]]},
 {id:"loadedPotatoes",name:"Loaded Chicken Baked Potatoes",servings:4,cost:8,tags:["protein","calcium"],q:"loaded chicken baked potato recipe",ing:[["russet potatoes",2,"lb"],["chicken",1,"lb"],["cheddar",6,"oz"],["sour cream",8,"oz"]]}
 ];
-const blank=()=>({version:2,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,dinnerSlots:30,zip:"",prices:[],essentials:[],plan:{},cooked:{},purchased:{},purchaseCost:{},income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",assets:[],liabilities:[],fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
+const blank=()=>({version:3,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,dinnerSlots:30,zip:"",prices:[],essentials:[],plan:{},cooked:{},purchased:{},purchaseCost:{},income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,revenue:[],expenses:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
 let state=(()=>{try{return Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||"{}"))}catch{return blank()}})();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], n=v=>Number.isFinite(+v)?+v:0, money=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n(v)), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])), search=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
 const save=()=>localStorage.setItem(KEY,JSON.stringify(state)), ym=()=>new Date().toISOString().slice(0,7), days=()=>new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
