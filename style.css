@@ -9,3 +9,28 @@ button,input,textarea,select{font:inherit}.shell{max-width:1180px;margin:auto;pa
 
 .plannedMeal{border-color:#3a8f67;box-shadow:0 0 0 1px #3a8f6733 inset}.dateChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.dateChip{border:1px solid #35506f;background:#122438;color:#dceaf7;border-radius:999px;padding:7px 9px;font:inherit;font-size:12px}.dateChip:active{transform:scale(.98)}.recipe .field[type=date]{min-width:165px}
 @media(max-width:680px){.dateChips{gap:5px}.dateChip{font-size:11px;padding:6px 8px}}
+
+/* Fluid layout guardrails: prefer percentages and intrinsic sizing over fixed page widths. */
+html,body{max-width:100%;overflow-x:hidden}
+.shell,.panel,.card,.grid,.row,.split,.tools,.stat{max-width:100%;min-width:0}
+.grid{width:100%}
+.grid>*{min-width:0;max-width:100%}
+.split>*{min-width:0;max-width:100%}
+.tools{max-width:100%}
+.tools>.field,.tools>input,.tools>select{max-width:100%}
+.tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.calendar{width:100%;max-width:100%}
+.reportBarRow{width:100%;margin:0 0 12px}
+.reportBarRow .split{width:100%;font-size:13px}
+.reportTrack{width:100%;height:10px;border-radius:999px;background:#202c3c;overflow:hidden;margin-top:5px}
+.reportFill{height:100%;max-width:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--green))}
+@media(max-width:680px){
+  .shell{width:100%;max-width:100%;padding-left:3%;padding-right:3%}
+  .panel,.card{width:100%;max-width:100%}
+  .stats{grid-template-columns:repeat(2,minmax(0,50%))}
+  .bottom{left:2%;right:2%;width:96%;grid-template-columns:repeat(11,minmax(0,9.09%));overflow-x:auto}
+  .bottom button{min-width:0;width:100%}
+  .field{max-width:100%}
+  .row{grid-template-columns:minmax(0,65%) minmax(0,35%)}
+  .row>.tools{justify-content:flex-end}
+}
