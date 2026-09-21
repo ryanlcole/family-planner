@@ -304,7 +304,7 @@ bind();save();
 }
 function bind(){
 if($("#recipeBookSearch"))$("#recipeBookSearch").oninput=()=>render();
-$(".recipePlan").forEach(x=>x.onclick=()=>{let id=x.dataset.id;if(state.plan[id])delete state.plan[id];else state.plan[id]={count:1,dates:[],prepared:0,addedAt:Date.now()};render()});
+$$(".recipePlan").forEach(x=>x.onclick=()=>{let id=x.dataset.id;if(state.plan[id])delete state.plan[id];else state.plan[id]={count:1,dates:[],prepared:0,addedAt:Date.now()};render()});
 
 $$(".needQty").forEach(x=>x.onchange=()=>{state.storeOffers[+x.dataset.i].need=n(x.value);render()});$$(".offerPrice").forEach(x=>x.onchange=()=>{let p=state.storeOffers[+x.dataset.i],s=x.dataset.store;p.offers=p.offers||{};p.offers[s]=p.offers[s]||{};p.offers[s].price=x.value===""?"":n(x.value);render()});$$(".offerAmount").forEach(x=>x.onchange=()=>{let p=state.storeOffers[+x.dataset.i],s=x.dataset.store;p.offers=p.offers||{};p.offers[s]=p.offers[s]||{};p.offers[s].amount=x.value===""?"":n(x.value);render()});$$(".removeStoreItem").forEach(x=>x.onclick=()=>{state.storeOffers.splice(+x.dataset.i,1);render()});
 [["invName","name"],["invCat","category"],["invQty","qty"],["invUnit","unit"],["invMin","minQty"]].forEach(([cl,k])=>$$("."+cl).forEach(x=>x.onchange=()=>{state.inventory[+x.dataset.i][k]=["qty","minQty"].includes(k)?(x.value===""?"":n(x.value)):x.value;render()}));$$(".invOn").forEach(x=>x.onchange=()=>{state.inventory[+x.dataset.i].onHand=x.checked;render()});$$(".invRemove").forEach(x=>x.onclick=()=>{state.inventory.splice(+x.dataset.i,1);render()});
