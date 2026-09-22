@@ -1,5 +1,5 @@
-const CACHE="family-planner-v32";
-const ASSETS=["./","./index.html","./style.css?v=32","./app.js?v=32","./manifest.webmanifest","./icon.svg"];
+const CACHE="family-planner-v26";
+const ASSETS=["./","./index.html","./style.css?v=26","./app.js?v=26","./manifest.webmanifest","./icon.svg"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
 self.addEventListener("message",e=>{if(e.data?.type==="SKIP_WAITING")self.skipWaiting()});
