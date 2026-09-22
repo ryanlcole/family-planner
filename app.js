@@ -1,4 +1,5 @@
 const KEY="familyPlannerLocalV2";
+const USDA_KEY_STORAGE="familyPlannerUsdaApiKey";
 const NAV=[["home","⌂","Home"],["food","◫","Food"],["recipes","▤","Recipes"],["meals","◉","Meals"],["groceries","✓","List"],["budget","$","Budget"],["tax","%","Tax"],["medical","✚","Medical"],["driving","↗","Drive"],["business","▣","Business"],["reports","▥","Reports"],["settings","⚙","Settings"]];
 const RECIPES=[
 {id:"greekChicken",name:"Greek Chicken",servings:6,cost:10,tags:["protein"],q:"Greek chicken recipe",ing:[["chicken",2,"lb"],["lemon",2,"count"],["plain yogurt",8,"oz"]]},
@@ -25,10 +26,10 @@ const RECIPE_META={
  greekChicken:{appliances:["stove","oven"]},bakedPotato:{appliances:["oven","air fryer"]},chickenPasta:{appliances:["stove"]},pizza:{appliances:["oven","mixer"]},chili:{appliances:["stove","Instant Pot","Crock Pot"]},mac:{appliances:["stove","Instant Pot"]},chickenRice:{appliances:["stove","Instant Pot"]},pastaCeci:{appliances:["stove"]},marrySoup:{appliances:["stove","Crock Pot"]},stuffedShells:{appliances:["stove","oven"]},sliders:{appliances:["oven"]},chickenParm:{appliances:["stove","oven","air fryer"]},tacoBowls:{appliances:["Crock Pot"]},homemadeNuggets:{appliances:["air fryer","oven"]},pastaFagioli:{appliances:["stove"]},broccoliCass:{appliances:["stove","oven"]},quesadillas:{appliances:["stove"]},burgers:{appliances:["stove","air fryer"]},loadedPotatoes:{appliances:["oven","air fryer"]}
 };
 const ALL_APPLIANCES=["fridge/freezer","stove","air fryer","mixer","blender","toaster","bread machine","Instant Pot","Crock Pot"];
-RECIPES.forEach(r=>Object.assign(r,RECIPE_META[r.id]||{}, {rating:r.rating??null,ratingCount:r.ratingCount??null,sourceName:r.sourceName||"Household recipe",sourceUrl:r.sourceUrl||""}));
-const blank=()=>({version:7,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,ebtCardBalance:"",ebtBalanceUpdated:"",dinnerSlots:30,zip:"",prices:[],essentials:[],inventory:[],cookbook:[],plan:{},cooked:{},purchased:{},purchaseCost:{},priceHistory:[],income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},incomeSources:[],incomeCalendarMonth:"",taxProfile:{taxYear:2026,filingStatus:"hoh",federalMode:"auto",federalPct:12,federalDeductionMode:"standard",federalCustomDeduction:0,federalOtherDeductions:0,federalCredits:0,federalExtraAnnual:0,ncMode:"auto",ncPct:3.99,ncDeductionMode:"standard",ncCustomDeduction:0,ncAdjustments:0,ncCredits:0,ncExtraAnnual:0,socialSecurityPct:6.2,medicarePct:1.45,additionalMedicare:true},taxItems:[],medical:{items:[],calendarMonth:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",actualMonth:"",actualHistory:{},assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,householdTransfer:0,revenue:[],expenses:[],reserves:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
+RECIPES.forEach(r=>Object.assign(r,RECIPE_META[r.id]||{}, {rating:r.rating??null,ratingCount:r.ratingCount??null,sourceName:r.sourceName||"Household recipe",sourceUrl:r.sourceUrl||"",sourceLicense:r.sourceLicense||"Household"}));
+const blank=()=>({version:8,profileLoaded:false,view:"home",householdLabel:"My Household",ebtBudget:0,ebtCardBalance:"",ebtBalanceUpdated:"",dinnerSlots:30,zip:"",prices:[],essentials:[],inventory:[],cookbook:[],catalogProducts:[],ingredientLinks:{},deals:[],lastProductLookup:null,lastSafetyCheck:null,plan:{},cooked:{},purchased:{},purchaseCost:{},priceHistory:[],income:{salaryAnnual:0,withholdingPct:0,tipNights:0,tipsAvg:0,tipsLow:0,tipsHigh:0,note:""},incomeSources:[],incomeCalendarMonth:"",taxProfile:{taxYear:2026,filingStatus:"hoh",federalMode:"auto",federalPct:12,federalDeductionMode:"standard",federalCustomDeduction:0,federalOtherDeductions:0,federalCredits:0,federalExtraAnnual:0,ncMode:"auto",ncPct:3.99,ncDeductionMode:"standard",ncCustomDeduction:0,ncAdjustments:0,ncCredits:0,ncExtraAnnual:0,socialSecurityPct:6.2,medicarePct:1.45,additionalMedicare:true},taxItems:[],medical:{items:[],calendarMonth:""},bills:[],dailyExpenses:[],otherCash:0,lastBackupAt:"",shoppingMode:"lowest",itemOverrides:{},storeOffers:[],calendarMonth:"",actualMonth:"",actualHistory:{},assets:[],liabilities:[],sinkingFunds:[],business:{name:"My Business",cash:0,taxReservePct:0,ownerDraw:0,householdTransfer:0,revenue:[],expenses:[],reserves:[],assets:[],liabilities:[],notes:""},fuel:{pricePerGal:0,priceUpdated:"",mpg:"",station:"",routes:[]}});
 let state=(()=>{try{return Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||"{}"))}catch{return blank()}})();
-(()=>{let b=blank();state.income=Object.assign({},b.income,state.income||{});state.taxProfile=Object.assign({},b.taxProfile,state.taxProfile||{});state.medical=Object.assign({},b.medical,state.medical||{});state.fuel=Object.assign({},b.fuel,state.fuel||{});state.business=Object.assign({},b.business,state.business||{});["prices","essentials","inventory","cookbook","priceHistory","incomeSources","taxItems","bills","dailyExpenses","storeOffers","assets","liabilities","sinkingFunds"].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[]});if(!Array.isArray(state.medical.items))state.medical.items=[];["revenue","expenses","reserves","assets","liabilities"].forEach(k=>{if(!Array.isArray(state.business[k]))state.business[k]=[]});state.version=7})();
+(()=>{let b=blank();state.income=Object.assign({},b.income,state.income||{});state.taxProfile=Object.assign({},b.taxProfile,state.taxProfile||{});state.medical=Object.assign({},b.medical,state.medical||{});state.fuel=Object.assign({},b.fuel,state.fuel||{});state.business=Object.assign({},b.business,state.business||{});["prices","essentials","inventory","cookbook","catalogProducts","deals","priceHistory","incomeSources","taxItems","bills","dailyExpenses","storeOffers","assets","liabilities","sinkingFunds"].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[]});if(!state.ingredientLinks||typeof state.ingredientLinks!=="object")state.ingredientLinks={};if(!Array.isArray(state.medical.items))state.medical.items=[];["revenue","expenses","reserves","assets","liabilities"].forEach(k=>{if(!Array.isArray(state.business[k]))state.business[k]=[]});state.version=8})();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], n=v=>Number.isFinite(+v)?+v:0, money=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n(v)), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])), search=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
 const save=()=>localStorage.setItem(KEY,JSON.stringify(state)), ym=()=>new Date().toISOString().slice(0,7), days=()=>new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
 function styleMoneyDecimals(root=document.querySelector("#app")){
@@ -214,7 +215,203 @@ const actualNum=(bucket,key)=>bucket[key]===""||bucket[key]==null?null:n(bucket[
 const favorableVariance=(row,actual)=>actual==null?null:(row.type==="income"?actual-row.budget:row.budget-actual);
 
 const canon=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+
+const cleanBarcode=v=>String(v||"").replace(/\D/g,"");
+const barcodeCore=v=>cleanBarcode(v).replace(/^0+/,"")||"0";
+const barcodeSame=(a,b)=>barcodeCore(a)===barcodeCore(b);
+const stripHtml=s=>String(s||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim();
+
+function parsePackageMeasure(quantity){
+  let s=String(quantity||"").trim();
+  let m=s.match(/([\d.]+)\s*(lbs?|pounds?|ounces?|oz|kg|kilograms?|grams?|g|ml|millilit(?:er|re)s?|l|lit(?:er|re)s?|ct|count)\b/i);
+  if(!m)return{amount:1,unit:"package"};
+  let amount=n(m[1]),u=String(m[2]).toLowerCase().replace(/\./g,"");
+  if(["lbs","pound","pounds"].includes(u))u="lb";
+  if(["ounce","ounces"].includes(u))u="oz";
+  if(["kilogram","kilograms"].includes(u))u="kg";
+  if(["gram","grams"].includes(u))u="g";
+  if(["milliliter","milliliters","millilitre","millilitres"].includes(u))u="ml";
+  if(["liter","liters","litre","litres"].includes(u))u="l";
+  if(["ct"].includes(u))u="count";
+  if(u==="kg")return{amount:amount*1000,unit:"g"};
+  if(u==="l")return{amount:amount*1000,unit:"ml"};
+  return{amount,unit:u};
+}
+function productByGtin(gtin){return (state.catalogProducts||[]).find(p=>barcodeSame(p.gtin,gtin))||null}
+function cacheCatalogProduct(p){
+  let i=(state.catalogProducts||[]).findIndex(x=>barcodeSame(x.gtin,p.gtin));
+  if(i>=0)state.catalogProducts[i]=Object.assign({},state.catalogProducts[i],p);
+  else state.catalogProducts.unshift(p);
+  state.lastProductLookup=p;
+}
+function linkedProductForIngredient(name){
+  let gtin=state.ingredientLinks?.[canon(name)];
+  return gtin?(state.storeOffers||[]).find(p=>p.gtin&&barcodeSame(p.gtin,gtin))||null:null;
+}
+function dealMatchesProduct(d,p){
+  if(d.gtin&&p.gtin&&barcodeSame(d.gtin,p.gtin))return true;
+  let a=canon(d.product),b=canon(p.name);
+  return !!a&&(a===b||a.includes(b)||b.includes(a));
+}
+function effectivePackagePrice(p,store){
+  let o=p.offers?.[store],base=n(o?.price);
+  if(base<=0)return{price:Infinity,deal:null,base};
+  let best=base,bestDeal=null,today=new Date().toISOString().slice(0,10);
+  (state.deals||[]).forEach(d=>{
+    if(d.store&&d.store!=="Any"&&d.store!==store)return;
+    if(d.expires&&d.expires<today)return;
+    if(!dealMatchesProduct(d,p))return;
+    let v=n(d.value),candidate=base;
+    if(d.type==="price"&&v>0)candidate=v;
+    else if(d.type==="amount"&&v>0)candidate=Math.max(0,base-v);
+    else if(d.type==="percent"&&v>0)candidate=Math.max(0,base*(1-v/100));
+    if(candidate<best){best=candidate;bestDeal=d}
+  });
+  return{price:best,deal:bestDeal,base};
+}
+function bestDealForProduct(p){
+  let hits=STORE_NAMES.map(store=>{let x=effectivePackagePrice(p,store);return{store,...x}}).filter(x=>x.deal&&Number.isFinite(x.price));
+  return hits.sort((a,b)=>a.price-b.price)[0]||null;
+}
+function dealForIngredient(name,unit){
+  let p=pricedProduct(name,unit);
+  if(p){let hit=bestDealForProduct(p);if(hit)return hit}
+  let today=new Date().toISOString().slice(0,10);
+  let d=(state.deals||[]).find(d=>!d.gtin&&(!d.expires||d.expires>=today)&&canon(d.product)&&canon(name).includes(canon(d.product)));
+  return d?{store:d.store||"Any",deal:d,price:null,base:null}:null;
+}
+function parseRecipeIngredients(text){
+  let out=[];
+  String(text||"").split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{
+    let p=line.split("|").map(x=>x.trim());
+    if(p.length>=3&&p[0]&&n(p[1])>0&&p[2])out.push([p[0],n(p[1]),p[2]]);
+  });
+  return out;
+}
+function recipeLiveCost(r){
+  let known=0,missing=0,onHand=0,needItems=0;
+  (r.ing||[]).forEach(i=>{
+    let have=inventoryQty(i[0],i[2]),buy=Math.max(0,n(i[1])-have);
+    if(buy<=0){onHand++;return}
+    needItems++;
+    let v=ingredientExpected(i[0],buy,i[2]);
+    if(v==null)missing++;else known+=v;
+  });
+  return{known,missing,onHand,needItems,total:(r.ing||[]).length};
+}
+async function fetchJsonOk(url){
+  let r=await fetch(url,{cache:"no-store"});
+  if(r.status===404)return null;
+  if(!r.ok)throw new Error("Source returned "+r.status);
+  return r.json();
+}
+async function checkProductSafety(product){
+  let out={gtin:product.gtin,name:product.name,checkedAt:new Date().toISOString(),fda:[],fsis:[],errors:[]};
+  let queries=[];
+  if(product.gtin)queries.push('code_info:"'+String(product.gtin).replace(/"/g,"")+'"');
+  let phrase=String(product.name||"").replace(/[^a-zA-Z0-9 ]/g," ").replace(/\s+/g," ").trim().split(" ").slice(0,5).join(" ");
+  if(phrase)queries.push('product_description:"'+phrase+'"');
+  for(const q of queries){
+    try{
+      let data=await fetchJsonOk("https://api.fda.gov/food/enforcement.json?search="+encodeURIComponent(q)+"&sort=report_date:desc&limit=10");
+      (data?.results||[]).forEach(x=>{if(!out.fda.some(y=>y.recall_number===x.recall_number))out.fda.push(x)});
+    }catch(err){out.errors.push("FDA: "+(err?.message||"lookup failed"))}
+  }
+  try{
+    let term=product.gtin||String(product.name||"").split(/\s+/).slice(0,3).join(" ");
+    let data=await fetchJsonOk("https://www.fsis.usda.gov/fsis/api/recall/v/1?field_product_items_value="+encodeURIComponent(term));
+    let rows=Array.isArray(data)?data:(data?.results||data?.data||[]);
+    let core=canon(product.name).slice(0,20),gt=barcodeCore(product.gtin);
+    out.fsis=(rows||[]).filter(x=>{let blob=canon(JSON.stringify(x));return (gt&&blob.includes(gt))||(core&&blob.includes(core))}).slice(0,10);
+  }catch(err){out.errors.push("USDA FSIS live lookup unavailable: "+(err?.message||"lookup failed"))}
+  state.lastSafetyCheck=out;save();
+  if($("#productSafety"))$("#productSafety").innerHTML=safetyHtml(out);
+  return out;
+}
+async function lookupProductByBarcode(){
+  let status=$("#productLookupStatus"),code=cleanBarcode($("#barcodeLookup")?.value);
+  if(code.length<8){status.textContent="Enter an 8–14 digit UPC / GTIN.";return}
+  status.textContent="Looking up "+code+"…";
+  try{
+    let fields="code,product_name,brands,quantity,categories,ingredients_text,nutriments,image_front_small_url";
+    let data=await fetchJsonOk("https://world.openfoodfacts.org/api/v3/product/"+encodeURIComponent(code)+"?fields="+fields),raw=data?.product;
+    if(!raw){data=await fetchJsonOk("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)+".json?fields="+fields);raw=data?.product}
+    if(!raw)throw new Error("Product not found in Open Food Facts");
+    let m=parsePackageMeasure(raw.quantity);
+    let product={gtin:String(raw.code||code),name:raw.product_name||("UPC "+code),brand:raw.brands||"",quantityText:raw.quantity||"",packageAmount:m.amount,packageUnit:m.unit,category:raw.categories||"",ingredients:raw.ingredients_text||"",image:raw.image_front_small_url||"",sourceName:"Open Food Facts",sourceLicense:"ODbL",sourceUrl:"https://world.openfoodfacts.org/product/"+encodeURIComponent(raw.code||code),checkedAt:new Date().toISOString(),nutrients:raw.nutriments||{}};
+    let apiKey=localStorage.getItem(USDA_KEY_STORAGE)||"";
+    if(apiKey){
+      try{
+        let ud=await fetchJsonOk("https://api.nal.usda.gov/fdc/v1/foods/search?api_key="+encodeURIComponent(apiKey)+"&query="+encodeURIComponent(code)+"&pageSize=25");
+        let hit=(ud?.foods||[]).find(x=>x.gtinUpc&&barcodeSame(x.gtinUpc,code));
+        if(hit){product.usdaFdcId=hit.fdcId;product.usdaDescription=hit.description||"";product.usdaDataType=hit.dataType||""}
+      }catch{}
+    }
+    cacheCatalogProduct(product);save();render();
+    status=$("#productLookupStatus");if(status)status.textContent="Found "+product.name+". Checking recalls and warnings…";
+    await checkProductSafety(product);
+    status=$("#productLookupStatus");if(status)status.textContent="Found and saved "+product.name+". Safety sources checked.";
+  }catch(err){console.error(err);status=$("#productLookupStatus");if(status)status.textContent="Lookup failed: "+(err?.message||"unknown source error")}
+}
+function addCatalogProductToPrices(gtin,alias){
+  let p=productByGtin(gtin);if(!p)return;
+  let name=String(alias||"").trim()||p.name;
+  let existing=(state.storeOffers||[]).find(x=>x.gtin&&barcodeSame(x.gtin,p.gtin));
+  if(existing){existing.name=name;existing.sourceName=p.sourceName;existing.sourceUrl=p.sourceUrl}
+  else state.storeOffers.push({id:"gtin-"+p.gtin,gtin:p.gtin,name,displayName:p.name,need:p.packageAmount||1,unit:p.packageUnit||"package",sourceName:p.sourceName,sourceUrl:p.sourceUrl,offers:{}});
+  if(String(alias||"").trim())state.ingredientLinks[canon(alias)]=p.gtin;
+  render();
+}
+function addCatalogProductToInventory(gtin){
+  let p=productByGtin(gtin);if(!p)return;
+  let m=parsePackageMeasure(p.quantityText);
+  let existing=state.inventory.find(x=>x.gtin&&barcodeSame(x.gtin,p.gtin));
+  if(existing){existing.onHand=true;existing.qty=n(existing.qty)+(m.amount||1)}
+  else state.inventory.push({id:"inv-gtin-"+p.gtin,gtin:p.gtin,name:p.name,category:"Food",onHand:true,qty:m.amount||1,unit:m.unit||"package",minQty:""});
+  render();
+}
+function addRecipeFromBuilder(){
+  let title=$("#recipeTitle").value.trim();
+  let servings=Math.max(1,n($("#recipeServings").value)||4);
+  let ing=parseRecipeIngredients($("#recipeIngredients").value);
+  if(!title){alert("Enter a recipe title.");return}
+  if(!ing.length){alert("Add ingredients as: ingredient | quantity | unit");return}
+  let tags=$("#recipeTags").value.split(",").map(x=>x.trim()).filter(Boolean);
+  let appliances=$("#recipeAppliances").value.split(",").map(x=>x.trim()).filter(Boolean);
+  let known=0;ing.forEach(i=>{let v=ingredientExpected(i[0],i[1],i[2]);if(v!=null)known+=v});
+  state.cookbook.push({id:"recipe-"+Date.now(),name:title,servings,cost:known||0,tags,appliances,ing,q:title+" recipe",sourceName:$("#recipeSourceName").value.trim()||"User-added recipe",sourceUrl:$("#recipeSourceUrl").value.trim(),sourceLicense:$("#recipeLicense").value,instructions:$("#recipeInstructions").value.trim(),rating:null,ratingCount:null});
+  ["recipeTitle","recipeSourceName","recipeSourceUrl","recipeIngredients","recipeTags","recipeAppliances","recipeInstructions"].forEach(id=>$("#"+id).value="");
+  $("#recipeServings").value=4;render();
+}
+function safetyHtml(s){
+  if(!s)return'<div class="empty">No product safety check run yet.</div>';
+  let parts=[];
+  (s.fda||[]).forEach(x=>parts.push('<div class="notice section"><b>Possible FDA recall match · '+esc(x.classification||"classification not listed")+'</b><div class="small">'+esc(x.product_description||"")+'</div><div class="small">'+esc(x.reason_for_recall||"")+'</div><div class="small">Recall '+esc(x.recall_number||"")+' · status '+esc(x.status||"")+' · reported '+esc(x.report_date||"")+'</div><div class="small">Verify package UPC, lot/date and distribution before treating this as your exact product.</div></div>'));
+  (s.fsis||[]).forEach(x=>{
+    let title=x.field_title||x.title||x.field_recall_number||"USDA FSIS recall/public health alert";
+    let summary=stripHtml(x.field_summary||x.summary||x.field_product_items||"");
+    parts.push('<div class="notice section"><b>Possible USDA FSIS match</b><div class="small">'+esc(stripHtml(title))+'</div><div class="small">'+esc(summary.slice(0,700))+'</div><div class="small">Verify the official FSIS notice, establishment/lot codes and dates.</div></div>');
+  });
+  if(!parts.length)parts.push('<div class="notice section"><b>No matching recall record found in the live checks.</b><div class="small">This is not a guarantee of safety. Also review current official alerts and advisories.</div></div>');
+  if((s.errors||[]).length)parts.push('<div class="small section">'+esc(s.errors.join(" · "))+'</div>');
+  return parts.join("");
+}
+function renderProductSources(){
+  if(!$("#productLookupResult"))return;
+  let p=state.lastProductLookup;
+  $("#productLookupResult").innerHTML=p?'<div class="card"><div class="split"><div><h3>'+esc(p.name)+'</h3><div class="small">'+esc(p.brand)+(p.quantityText?' · '+esc(p.quantityText):'')+'</div></div><span class="tag">'+esc(p.gtin)+'</span></div><div class="small section">Source: '+esc(p.sourceName)+' · '+esc(p.sourceLicense)+(p.usdaFdcId?' · USDA FDC '+esc(p.usdaFdcId):'')+'</div><div class="grid g2 section"><label><span>Recipe ingredient alias (optional)</span><input class="field" id="productIngredientAlias" placeholder="e.g. chicken"></label><div class="tools"><button class="btn primary catalogPrice" data-gtin="'+esc(p.gtin)+'">Add to price matrix</button><button class="btn catalogInventory" data-gtin="'+esc(p.gtin)+'">Add to inventory</button><button class="btn catalogSafety" data-gtin="'+esc(p.gtin)+'">Recheck safety</button></div></div><a class="btn section" href="'+esc(p.sourceUrl)+'" target="_blank" rel="noopener">Open product source</a></div>':'<div class="empty">Look up a UPC / GTIN to create a sourced product record.</div>';
+  $("#productSafety").innerHTML=safetyHtml(state.lastSafetyCheck);
+  $("#productCatalog").innerHTML=(state.catalogProducts||[]).slice(0,12).map(x=>'<div class="row"><div><b>'+esc(x.name)+'</b><div class="small">'+esc(x.gtin)+' · '+esc(x.sourceName||"source")+(x.quantityText?' · '+esc(x.quantityText):'')+'</div></div><div class="tools"><button class="btn catalogPrice" data-gtin="'+esc(x.gtin)+'">Prices</button><button class="btn catalogSafety" data-gtin="'+esc(x.gtin)+'">Safety</button><button class="btn danger catalogRemove" data-gtin="'+esc(x.gtin)+'">×</button></div></div>').join("")||'<div class="empty">No sourced products cached yet.</div>';
+  $("#dealRows").innerHTML=(state.deals||[]).map((d,i)=>'<div class="row"><div class="grid g2" style="width:100%"><input class="field dealProduct" data-i="'+i+'" placeholder="Product name" value="'+esc(d.product||"")+'"><input class="field dealGtin" data-i="'+i+'" inputmode="numeric" placeholder="UPC / GTIN" value="'+esc(d.gtin||"")+'"><select class="field dealStore" data-i="'+i+'">'+["Any"].concat(STORE_NAMES).map(s=>'<option '+((d.store||"Any")===s?'selected':'')+'>'+esc(s)+'</option>').join("")+'</select><select class="field dealType" data-i="'+i+'"><option value="price" '+(d.type==="price"?'selected':'')+'>Sale price</option><option value="amount" '+(d.type==="amount"?'selected':'')+'>Amount off</option><option value="percent" '+(d.type==="percent"?'selected':'')+'>Percent off</option></select><input class="field dealValue" data-i="'+i+'" type="number" step=".01" placeholder="Value" value="'+(d.value??"")+'"><input class="field dealExpires" data-i="'+i+'" type="date" value="'+esc(d.expires||"")+'"><input class="field dealSource" data-i="'+i+'" type="url" placeholder="Coupon / source URL" value="'+esc(d.sourceUrl||"")+'"></div><button class="btn danger dealRemove" data-i="'+i+'">×</button></div>').join("")||'<div class="empty">No coupons or promotions entered yet.</div>';
+}
+function renderRecipeIntelligence(){
+  if(!$("#recipeIntelligence"))return;
+  let ranked=fullCookbook().map(r=>({r,live:recipeLiveCost(r)})).sort((a,b)=>a.live.missing-b.live.missing||a.live.known-b.live.known||b.live.onHand-a.live.onHand).slice(0,10);
+  $("#recipeIntelligence").innerHTML=ranked.map(x=>'<div class="row"><div><b>'+esc(x.r.name)+'</b><div class="small">'+x.live.onHand+'/'+x.live.total+' ingredients covered · '+(x.live.missing?x.live.missing+' unpriced':'all needed ingredients priced')+' · '+esc(x.r.sourceName||"Household recipe")+(x.r.sourceLicense?' · '+esc(x.r.sourceLicense):'')+'</div></div><b>'+money(x.live.known)+(x.live.missing?' + ?':'')+'</b></div>').join("")||'<div class="empty">No recipes available.</div>';
+}
+
 function pricedProduct(name,unit){
+  let linked=linkedProductForIngredient(name);if(linked)return linked;
   let a=canon(name),u=canon(unit);
   return (state.storeOffers||[]).find(p=>{let b=canon(p.name);return (a===b||a.includes(b)||b.includes(a))&&(!u||!canon(p.unit)||u===canon(p.unit))})||null;
 }
@@ -262,7 +459,7 @@ function plannedMealRowHtml(id,e){
 
 
 const STORE_NAMES=["Walmart","Lidl","Lowes Foods","Family Dollar","Costco"];
-const offerCost=(p,store)=>{let o=p.offers?.[store];if(!o||n(o.price)<=0||n(o.amount)<=0||n(p.need)<=0)return Infinity;return Math.ceil(n(p.need)/n(o.amount))*n(o.price)};
+const offerCost=(p,store)=>{let o=p.offers?.[store],ep=effectivePackagePrice(p,store);if(!o||!Number.isFinite(ep.price)||n(o.amount)<=0||n(p.need)<=0)return Infinity;return Math.ceil(n(p.need)/n(o.amount))*ep.price};
 function autoStorePlan(mode=state.shoppingMode){
   let items=(state.storeOffers||[]).filter(p=>n(p.need)>0), assignments=[], stores=[];
   const candidate=(allowed)=>{
