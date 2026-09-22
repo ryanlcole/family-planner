@@ -36,3 +36,19 @@ html,body{max-width:100%;overflow-x:hidden}
 }
 
 .money-decimal{font-size:.58em;vertical-align:sub;line-height:0;font-weight:inherit;letter-spacing:0;opacity:.92}
+
+/* Inventory -> shopping list -> cart -> history workflow */
+.shopTabs{display:flex;gap:8px;flex-wrap:wrap}
+.shopTabs .btn{flex:1 1 130px}
+.inventoryWarningRow td{background:rgba(255,180,60,.07)}
+.inventoryWarningRow td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+.inventoryWorkflow .tools{flex-wrap:nowrap}
+.workflowItem{margin-bottom:10px}
+.shopPane{width:100%}
+@media(max-width:680px){
+  .shopTabs{position:sticky;top:0;z-index:8;background:#0b1018e8;padding:6px 0;backdrop-filter:blur(12px)}
+  .workflowItem .grid.g2{grid-template-columns:1fr}
+  .inventoryWorkflow th,.inventoryWorkflow td{min-width:105px}
+  .inventoryWorkflow th:nth-child(3),.inventoryWorkflow td:nth-child(3){min-width:90px}
+  .inventoryWorkflow th:nth-child(4),.inventoryWorkflow td:nth-child(4){min-width:150px}
+}
