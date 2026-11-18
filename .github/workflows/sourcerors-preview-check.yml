@@ -23,7 +23,7 @@ jobs:
           node --check sourcerors-preview/preview.js
           test -s sourcerors-preview/index.html
           test -s sourcerors-preview/preview.css
-          grep -q 'Public sample-data-only preview' sourcerors-preview/index.html
+          grep -q 'Public sample-only design preview' sourcerors-preview/index.html
           grep -q 'name="robots" content="noindex,nofollow"' sourcerors-preview/index.html
           grep -q 'No real applications' sourcerors-preview/index.html
           grep -q 'No sign-in here' sourcerors-preview/preview.js
