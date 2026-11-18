@@ -65,6 +65,24 @@
   function account(){
     return '<div class="layout"><div class="stack"><section class="panel"><span class="label">ACCOUNT DESIGN PREVIEW</span><h2>Your identity is not inventory.</h2><p>One account may support work, interviews and shopping, but it never gives every business automatic access to your personal information.</p><div class="metrics"><div class="metric"><strong>Human</strong><small>Hiring decisions</small></div><div class="metric"><strong>Consent</strong><small>Information sharing</small></div><div class="metric"><strong>Visible</strong><small>Sources and uncertainty</small></div><div class="metric"><strong>Separate</strong><small>Work and shopping data</small></div></div><div class="actions" style="margin-top:16px">'+button('Reset example interactions','reset','secondary')+'</div></section></div><div class="stack"><section class="panel"><h3>No sign-in here</h3><p>This temporary public preview intentionally does not accept passwords, names, phone numbers, job applications or payment information.</p><div class="info gold"><strong>Real accounts are not on GitHub Pages.</strong><p>The separately tested server implementation remains private and must pass production security review before public applicants can register.</p></div></section></div></div>';
   }
+  const fundingReasons = Object.freeze({
+    work: {
+      title:'Why work discovery deserves support',
+      text:'Applicants need reliable employer sources, and businesses need to hear from real applicants. Funding could help verify organizations, expand local coverage, keep applications free, and test whether user-directed search makes opportunities easier to find. This demo does not measure hiring outcomes.'
+    },
+    earn: {
+      title:'Why interviews should stay human',
+      text:'A hiring manager, not an impersonating bot, should decide whether to invite someone. Funding would help build secure invitations, identity review, notifications, accessibility, and fraud protections. Paid interviews remain a separate legal and payment-provider milestone—not a current earning opportunity.'
+    },
+    products: {
+      title:'Why independent sellers need a direct path',
+      text:'Shoppers often remember the product but lose the seller. Funding could support merchant onboarding and source-linked product matching so users can compare exact and possible matches without mistaking AI suggestions for the original creator. Real inventory and delivery information are not part of this demo.'
+    },
+    account: {
+      title:'Why privacy is part of the product',
+      text:'One account must not mean unrestricted sharing of personal information. Funding would help protect applicant records, separate shopping data from hiring, add account recovery and deletion, and fund independent security and accessibility checks before any public registration.'
+    }
+  });
   function render(){
     const t=tabs[state.page];
     $('#heroKicker').textContent=t.kicker;
@@ -72,6 +90,7 @@
     $('#heroBody').textContent=t.sub;
     document.querySelectorAll('[data-tab]').forEach(el=>{const active=el.dataset.tab===state.page;el.classList.toggle('is-active',active);el.setAttribute('aria-current',active?'page':'false');});
     $('#page').innerHTML=({work,earn,products:productsView,account}[state.page])();
+    const explanation=fundingReasons[state.page];$('#fundingContextTitle').textContent=explanation.title;$('#fundingContextText').textContent=explanation.text;
     const n=$('#notice');n.hidden=!state.notification;n.textContent=state.notification||'';
     const city=$('#cityInput');if(city)city.value=state.city;
   }
