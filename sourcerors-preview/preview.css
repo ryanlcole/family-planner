@@ -114,3 +114,22 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}
 .source-questions p{font-size:13px}
 .source-questions strong{color:var(--ink)}
 @media(max-width:450px){.source-promise{padding:12px 14px}.source-promise .source-statement{font-size:16px}}
+
+/* Crowdfunding narrative; informational only, no payment collection */
+.crowd-callout{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 19px;margin:0 0 18px;border-radius:15px;background:#e1eee3;border:1px solid #bad7c1}
+.crowd-callout strong{font-size:15px;letter-spacing:-.02em}
+.crowd-callout p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.crowdfund-section{margin-top:18px;display:grid;gap:16px;scroll-margin-top:16px}
+.funding-context{margin-top:18px}
+.funding-context h2{font-size:22px;margin-top:9px}
+.funding-title{padding:10px 3px}
+.funding-title h2{font-size:clamp(28px,4vw,38px);line-height:1.12;letter-spacing:-.05em;margin:8px 0}
+.funding-title p{color:var(--muted);font-size:15px;max-width:750px;margin:0}
+.funding-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.funding-grid .panel{height:100%}
+.funding-grid h3{margin-top:8px}
+.funding-status ol{padding-left:20px}
+.funding-status li{margin-bottom:8px}
+.funding-boundary{background:#fff3d7;border:1px solid #eedba9;border-radius:12px;padding:13px 16px;font-size:13px;color:#654d20}
+.funding-boundary strong{display:block}
+@media(max-width:620px){.funding-grid{grid-template-columns:1fr}.crowd-callout{align-items:flex-start;flex-direction:column}.crowd-callout .btn{width:100%}}
