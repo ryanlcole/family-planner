@@ -27,4 +27,9 @@ jobs:
           grep -q 'name="robots" content="noindex,nofollow"' sourcerors-preview/index.html
           grep -q 'No real applications' sourcerors-preview/index.html
           grep -q 'No sign-in here' sourcerors-preview/preview.js
+          grep -q 'Get to the Source' sourcerors-preview/index.html
+          grep -q 'AI can show you results without impersonating the source' sourcerors-preview/index.html
+          grep -q 'WHY THIS PAGE MATTERS' sourcerors-preview/index.html
+          grep -q 'No donations are collected on this page' sourcerors-preview/index.html
+          grep -q 'fundingReasons' sourcerors-preview/preview.js
           ! grep -RE 'sk-proj-|BEGIN PRIVATE KEY|SOURCERORS_ADMIN_KEY=' sourcerors-preview/
