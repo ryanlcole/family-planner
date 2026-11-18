@@ -102,3 +102,15 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}
 @media(max-width:810px){.desktop-nav{display:none}.layout{grid-template-columns:1fr}.intro{padding-top:14px}.account-button{padding:8px 10px}.footer{padding-bottom:90px}.mobile-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;padding:5px 7px max(5px,env(safe-area-inset-bottom));background:rgba(255,255,255,.98);border-top:1px solid var(--line);z-index:20;box-shadow:0 -5px 13px #122c2415;gap:3px}.mobile-nav button{border:0;border-radius:10px;background:transparent;color:#526b61;min-height:52px;display:grid;place-items:center;gap:0;font-size:11px;font-weight:750;padding:4px 0}.mobile-nav button span{font-size:23px;line-height:1.05}.mobile-nav button.is-active{background:#d9f0e3;color:#0e6148}}
 @media(max-width:450px){.field-grid,.product-grid{grid-template-columns:1fr}.panel,.card{padding:17px}.product-art{height:120px}.brand-name strong{font-size:18px}.brand-name small{font-size:8px}.brand-logo{width:40px;height:40px}.account-button{font-size:0}.account-button span{font-size:22px}.preview-banner{font-size:10px;gap:3px}h1{font-size:43px}.intro{padding-bottom:15px}.btn{white-space:normal;text-align:center}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Source-first promise: short by default for narrow phones, full customer questions on demand */
+.source-promise{background:white;border:1px solid var(--line);border-left:5px solid var(--forest);border-radius:15px;padding:15px 20px;margin:0 0 18px;box-shadow:0 3px 12px #12342d0a}
+.source-promise p{margin:7px 0;color:var(--muted);line-height:1.52}
+.source-promise .source-statement{color:var(--ink);font-size:18px;letter-spacing:-.025em}
+.source-promise .source-explanation{font-size:13px}
+.source-promise .source-identity{color:var(--forest);font-size:12px;font-weight:750}
+.source-questions{font-size:12px;color:var(--muted);margin-top:7px;border-top:1px solid var(--line);padding-top:7px}
+.source-questions summary{cursor:pointer;color:var(--forest);font-weight:750;min-height:30px;display:list-item;padding:5px 0}
+.source-questions p{font-size:13px}
+.source-questions strong{color:var(--ink)}
+@media(max-width:450px){.source-promise{padding:12px 14px}.source-promise .source-statement{font-size:16px}}
