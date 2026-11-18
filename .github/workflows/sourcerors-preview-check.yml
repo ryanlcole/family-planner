@@ -1,0 +1,30 @@
+name: Sourcerors temporary public preview checks
+on:
+  pull_request:
+    paths:
+      - "sourcerors-preview/**"
+      - ".github/workflows/sourcerors-preview-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate no private data and JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check sourcerors-preview/preview.js
+          test -s sourcerors-preview/index.html
+          test -s sourcerors-preview/preview.css
+          grep -q 'Public sample-data-only preview' sourcerors-preview/index.html
+          grep -q 'name="robots" content="noindex,nofollow"' sourcerors-preview/index.html
+          grep -q 'No real applications' sourcerors-preview/index.html
+          grep -q 'No sign-in here' sourcerors-preview/preview.js
+          ! grep -RE 'sk-proj-|BEGIN PRIVATE KEY|SOURCERORS_ADMIN_KEY=' sourcerors-preview/
