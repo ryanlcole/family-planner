@@ -14,7 +14,7 @@
     {id:'wood',name:'Oak Keepsake Box',seller:'Oakline Workshop',description:'Small decorative wooden storage box. Example item.',emoji:'🎁',tags:'oak wooden box gift keepsake'},
     {id:'plant',name:'Ceramic Herb Planter',seller:'Riverbend Home Supply',description:'Compact planter for windowsills. Example item.',emoji:'🪴',tags:'ceramic planter plant herb pot'}
   ]);
-  const state = {page:'work',query:'',city:'all',selectedFirm:null,selectedProduct:null,productQuery:'',application:false,accepted:false,notification:'',consent:false};
+  const state = {page:'work',query:'',city:'all',selectedFirm:null,selectedProduct:null,productQuery:'',application:false,accepted:false,notification:'',consent:false,privacyExample:false};
   const $ = s=>document.querySelector(s);
   const escapeHTML = value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
   const button=(text,action,cls='')=>'<button class="btn '+cls+'" type="button" data-action="'+escapeHTML(action)+'">'+text+'</button>';
@@ -22,7 +22,8 @@
     work:{title:'Get to the<br/><em>Source.</em>',sub:'Find real opportunities. Discover independent businesses. Connect directly with people.',kicker:'REAL PEOPLE · REAL BUSINESSES · REAL CONNECTIONS'},
     earn:{title:'Meet people.<br/><em>Make progress.</em>',sub:'Your applications, invitations and interview decisions belong to you.',kicker:'02 / HUMAN CONVERSATIONS'},
     products:{title:'Seen it somewhere?<br/><em>Find it again.</em>',sub:'Discover original sellers and products with clear information about every match.',kicker:'03 / EXACT SELLER DISCOVERY'},
-    account:{title:'Your account.<br/><em>Your rules.</em>',sub:'Your private information should follow your consent, not an advertising algorithm.',kicker:'04 / YOUR IDENTITY'}
+    account:{title:'Your account.<br/><em>Your rules.</em>',sub:'Your private information should follow your consent, not an advertising algorithm.',kicker:'04 / YOUR IDENTITY'},
+    support:{title:'Support the<br/><em>mission.</em>',sub:'See what exists, what still needs work, and why source-first discovery matters.',kicker:'FUNDING · MILESTONES · EVIDENCE'}
   };
   function notify(message){state.notification=message;}
   function firmCard(f){
@@ -65,41 +66,52 @@
   function account(){
     return '<div class="layout"><div class="stack"><section class="panel"><span class="label">ACCOUNT DESIGN PREVIEW</span><h2>Your identity is not inventory.</h2><p>One account may support work, interviews and shopping, but it never gives every business automatic access to your personal information.</p><div class="metrics"><div class="metric"><strong>Human</strong><small>Hiring decisions</small></div><div class="metric"><strong>Consent</strong><small>Information sharing</small></div><div class="metric"><strong>Visible</strong><small>Sources and uncertainty</small></div><div class="metric"><strong>Separate</strong><small>Work and shopping data</small></div></div><div class="actions" style="margin-top:16px">'+button('Reset example interactions','reset','secondary')+'</div></section></div><div class="stack"><section class="panel"><h3>No sign-in here</h3><p>This temporary public preview intentionally does not accept passwords, names, phone numbers, job applications or payment information.</p><div class="info gold"><strong>Real accounts are not on GitHub Pages.</strong><p>The separately tested server implementation remains private and must pass production security review before public applicants can register.</p></div></section></div></div>';
   }
-  const fundingReasons = Object.freeze({
-    work: {
-      title:'Why work discovery deserves support',
-      text:'Applicants need reliable employer sources, and businesses need to hear from real applicants. Funding could help verify organizations, expand local coverage, keep applications free, and test whether user-directed search makes opportunities easier to find. This demo does not measure hiring outcomes.'
-    },
-    earn: {
-      title:'Why interviews should stay human',
-      text:'A hiring manager, not an impersonating bot, should decide whether to invite someone. Funding would help build secure invitations, identity review, notifications, accessibility, and fraud protections. Paid interviews remain a separate legal and payment-provider milestone—not a current earning opportunity.'
-    },
-    products: {
-      title:'Why independent sellers need a direct path',
-      text:'Shoppers often remember the product but lose the seller. Funding could support merchant onboarding and source-linked product matching so users can compare exact and possible matches without mistaking AI suggestions for the original creator. Real inventory and delivery information are not part of this demo.'
-    },
-    account: {
-      title:'Why privacy is part of the product',
-      text:'One account must not mean unrestricted sharing of personal information. Funding would help protect applicant records, separate shopping data from hiring, add account recovery and deletion, and fund independent security and accessibility checks before any public registration.'
-    }
+  const examples=Object.freeze({
+    work:{symbol:'🏪',label:'GUIDED SAMPLE · FIND WORK',title:'Discover a small local employer',description:'A fictional studio in Winston-Salem has a sample job. Open its company page, inspect the listing, then choose whether to simulate an application.',button:'Try employer and job sample'},
+    earn:{symbol:'🗓️',label:'GUIDED SAMPLE · HUMAN INTERVIEW',title:'A manager invites a candidate',description:'Walk through a fictional candidate invitation and accept or decline. No manager, calendar service, or payout is contacted.',button:'Load sample invitation'},
+    products:{symbol:'🕯️',label:'GUIDED SAMPLE · PRODUCT REDISCOVERY',title:'Find the candle from a video',description:'Search a fictional independent seller catalog, inspect the possible match, and see unknown stock and delivery status instead of a made-up guarantee.',button:'Try pine candle search'},
+    account:{symbol:'🔐',label:'GUIDED SAMPLE · PRIVACY',title:'Decide who can see what',description:'Compare what an applicant could authorize an employer to see versus what a merchant or AI assistant should never receive.',button:'Show privacy example'}
   });
+  function privacyExample(){
+    return '<div class="privacy-example" role="region" aria-label="Fictional permissions comparison">'+
+      '<div class="privacy-line"><strong>Candidate</strong><span>Controls their own application and sharing choices</span></div>'+
+      '<div class="privacy-line"><strong>Hiring manager</strong><span>Only a deliberately submitted application; no shopping history</span></div>'+
+      '<div class="privacy-line"><strong>Merchant</strong><span>Product listing and voluntary shopping inquiry; no applicant record</span></div>'+
+      '<div class="privacy-line"><strong>AI assistant</strong><span>May search and explain sources; cannot pretend to be a person or send applications</span></div>'+
+      '<small>These are design rules shown as fictional examples. No personal data is entered or sent.</small></div>';
+  }
+  function spotlight(){
+    const e=examples[state.page];if(!e)return '';
+    return '<section class="sample-spotlight" aria-label="Interactive fictional sample">'+
+      '<div class="sample-heading"><span class="sample-icon" aria-hidden="true">'+e.symbol+'</span><div><span class="label">'+escapeHTML(e.label)+'</span><h2>'+escapeHTML(e.title)+'</h2></div><span class="pill gold">FICTIONAL</span></div>'+
+      '<p>'+escapeHTML(e.description)+'</p>'+
+      '<div class="actions">'+button(escapeHTML(e.button),'sample:'+state.page)+'</div>'+
+      (state.page==='account'&&state.privacyExample?privacyExample():'')+
+      '</section>';
+  }
   function render(){
     const t=tabs[state.page];
     $('#heroKicker').textContent=t.kicker;
     $('#heroTitle').innerHTML=t.title;
     $('#heroBody').textContent=t.sub;
     document.querySelectorAll('[data-tab]').forEach(el=>{const active=el.dataset.tab===state.page;el.classList.toggle('is-active',active);el.setAttribute('aria-current',active?'page':'false');});
-    $('#page').innerHTML=({work,earn,products:productsView,account}[state.page])();
-    const explanation=fundingReasons[state.page];$('#fundingContextTitle').textContent=explanation.title;$('#fundingContextText').textContent=explanation.text;
+    const supporting=state.page==='support';
+    $('#page').hidden=supporting;
+    $('#supportPage').hidden=!supporting;
+    if(!supporting)$('#page').innerHTML=spotlight()+({work,earn,products:productsView,account}[state.page])();
     const n=$('#notice');n.hidden=!state.notification;n.textContent=state.notification||'';
     const city=$('#cityInput');if(city)city.value=state.city;
   }
   document.addEventListener('click',event=>{
     const b=event.target.closest('button');if(!b)return;
-    if(b.dataset.tab){state.page=b.dataset.tab;state.notification='';render();return;}
+    if(b.dataset.tab){state.page=b.dataset.tab;state.notification='';history.replaceState(null,'','#/'+state.page);render();window.scrollTo({top:0,behavior:'instant'});return;}
     const action=b.dataset.action;if(!action)return;
     state.notification='';
-    if(action.startsWith('goto:'))state.page=action.slice(5);
+    if(action==='sample:work'){state.page='work';state.query='';state.city='all';state.selectedFirm='moss';state.consent=false;state.application=false;state.accepted=false;notify('Fictional employer sample loaded. No real company or opening is represented.');}
+    else if(action==='sample:earn'){state.page='earn';state.selectedFirm='moss';state.application=true;state.accepted=false;notify('Fictional interview invitation loaded; nothing was sent to an employer or calendar.');}
+    else if(action==='sample:products'){state.page='products';state.selectedProduct=null;state.productQuery='pine';notify('Sample pine candle search loaded. Sellers and catalog items are fictional.');}
+    else if(action==='sample:account'){state.page='account';state.privacyExample=true;notify('Fictional permissions example loaded; no personal data is shared.');}
+    else if(action.startsWith('goto:'))state.page=action.slice(5);
     else if(action.startsWith('firm:')){state.selectedFirm=action.slice(5);state.consent=false;state.application=false;state.accepted=false;}
     else if(action==='back'){state.selectedFirm=null;state.consent=false;}
     else if(action==='show-apply')state.consent=true;
@@ -114,7 +126,7 @@
     else if(action==='close-product')state.selectedProduct=null;
     else if(action==='clear-products')state.productQuery='';
     else if(action==='clear-work'){state.query='';state.city='all';}
-    else if(action==='reset'){Object.assign(state,{page:'work',query:'',city:'all',selectedFirm:null,selectedProduct:null,productQuery:'',application:false,accepted:false,notification:'',consent:false});}
+    else if(action==='reset'){Object.assign(state,{page:'work',query:'',city:'all',selectedFirm:null,selectedProduct:null,productQuery:'',application:false,accepted:false,notification:'',consent:false,privacyExample:false});}
     render();
   });
   document.addEventListener('submit',event=>{
@@ -123,5 +135,8 @@
     if(event.target.id==='productSearch'){state.productQuery=$('#productInput').value.trim().slice(0,120);state.selectedProduct=null;state.notification='';}
     render();
   });
+  const initial=location.hash.startsWith('#/')?location.hash.slice(2):'';
+  if(['work','earn','products','account','support'].includes(initial))state.page=initial;
+  window.addEventListener('hashchange',()=>{const next=location.hash.startsWith('#/')?location.hash.slice(2):'';if(['work','earn','products','account','support'].includes(next)){state.page=next;state.notification='';render();}});
   render();
 })();
