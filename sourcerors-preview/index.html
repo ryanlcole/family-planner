@@ -21,6 +21,7 @@
     <button type="button" data-tab="work" class="is-active">Find work</button>
     <button type="button" data-tab="earn">Interviews</button>
     <button type="button" data-tab="products">Find products</button>
+    <button type="button" data-tab="support">Support</button>
   </nav>
   <button type="button" class="account-button" data-tab="account">Account <span aria-hidden="true">◎</span></button>
 </header>
@@ -48,20 +49,26 @@
       </div>
     </details>
   </section>
-  <div class="crowd-callout">
-    <div><strong>Help us put people back at the source.</strong><p>See what Sourcerors is building, what is already tested, and how future funding would be used.</p></div>
-    <a class="btn secondary" href="#support">Why support this?</a>
-  </div>
   <div id="notice" class="notice" hidden role="status" aria-live="polite"></div>
   <section id="page" aria-label="Sourcerors preview content" aria-live="polite">
     <div class="panel"><p>Preparing the preview…</p></div>
   </section>
-  <section class="funding-context panel" aria-labelledby="fundingContextTitle">
-    <span class="label">WHY THIS PAGE MATTERS</span>
-    <h2 id="fundingContextTitle">Why work discovery needs a human-first alternative</h2>
-    <p id="fundingContextText">Job seekers and employers need direct, transparent connections. The goal is to show source-backed businesses and all eligible listings, with human review instead of invisible automated rejection.</p>
-    <p class="micro">This is the proposed benefit, not a measured outcome from the demo listings.</p>
-  </section>
+  <section id="supportPage" aria-label="Crowdfunding mission, evidence and plan" hidden>
+    <div class="support-intro panel">
+      <span class="label">CROWDFUNDING · INDEPENDENT SECTION</span>
+      <h2>Support the mission. See the evidence.</h2>
+      <p>Here's why the network is being built, what the public demonstration can show, what the separate private pilot has actually tested, and which milestones still need resources. This is a proposal, not an active fundraising campaign.</p>
+    </div>
+    <section class="funding-context panel" aria-labelledby="supportUseHeading">
+      <span class="label">WHAT EACH EXPERIENCE WOULD SOLVE</span>
+      <h2 id="supportUseHeading">Four purposes. One human-first rule.</h2>
+      <div class="support-scenarios">
+        <article><strong>Work</strong><p>Verified organizations and free direct applications, with human decisions instead of automated applicant exclusion.</p><button type="button" class="btn secondary" data-action="sample:work">Try a work sample</button></article>
+        <article><strong>Interviews</strong><p>Human-issued invitations, candidate choice, accessible scheduling and reviewed fraud protections.</p><button type="button" class="btn secondary" data-action="sample:earn">Try an interview sample</button></article>
+        <article><strong>Products</strong><p>Source-linked independent merchants and clear exact-versus-possible matches without inventing shipping information.</p><button type="button" class="btn secondary" data-action="sample:products">Try a product sample</button></article>
+        <article><strong>Account</strong><p>Separate permissions for applications, shopping, and human communication, with no cross-purpose data sale.</p><button type="button" class="btn secondary" data-action="sample:account">Try a privacy sample</button></article>
+      </div>
+    </section>
   <section id="support" class="crowdfund-section" aria-labelledby="supportHeading">
     <div class="funding-title">
       <span class="label">THE MISSION · THE PLAN · THE EVIDENCE</span>
@@ -86,16 +93,18 @@
       <div class="funding-boundary"><strong>No donations are collected on this page.</strong><span> A payment link, campaign target, and supporter terms will be added only after a legitimate fundraising setup has been approved.</span></div>
     </div>
   </section>
+  </section>
 </main>
 <footer class="footer">
   <div><strong>Sourcerors.com</strong><p>Get to the Source.</p></div>
-  <div>Public sample-data-only preview of the approved direction. It is not the production Sourcerors website.</div>
+  <div>Public sample-only design preview, not the production site. <button type="button" class="footer-link" data-tab="support">Support &amp; progress</button></div>
 </footer>
 <nav class="mobile-nav" aria-label="Mobile navigation">
   <button type="button" data-tab="work" class="is-active"><span aria-hidden="true">⌕</span>Work</button>
   <button type="button" data-tab="earn"><span aria-hidden="true">▤</span>Earn</button>
   <button type="button" data-tab="products"><span aria-hidden="true">◈</span>Products</button>
   <button type="button" data-tab="account"><span aria-hidden="true">◎</span>Account</button>
+  <button type="button" data-tab="support"><span aria-hidden="true">♡</span>Support</button>
 </nav>
 <script defer src="./preview.js"></script>
 </body>
