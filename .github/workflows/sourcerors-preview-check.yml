@@ -29,7 +29,12 @@ jobs:
           grep -q 'No sign-in here' sourcerors-preview/preview.js
           grep -q 'Get to the Source' sourcerors-preview/index.html
           grep -q 'AI can show you results without impersonating the source' sourcerors-preview/index.html
-          grep -q 'WHY THIS PAGE MATTERS' sourcerors-preview/index.html
+          grep -q 'CROWDFUNDING · INDEPENDENT SECTION' sourcerors-preview/index.html
+          grep -q 'id="supportPage"' sourcerors-preview/index.html
+          grep -q 'data-tab="support"' sourcerors-preview/index.html
           grep -q 'No donations are collected on this page' sourcerors-preview/index.html
-          grep -q 'fundingReasons' sourcerors-preview/preview.js
+          grep -q 'function spotlight' sourcerors-preview/preview.js
+          grep -q 'sample:earn' sourcerors-preview/preview.js
+          grep -q "\$('#supportPage').hidden" sourcerors-preview/preview.js
+          node --test sourcerors-preview/test-preview.mjs
           ! grep -RE 'sk-proj-|BEGIN PRIVATE KEY|SOURCERORS_ADMIN_KEY=' sourcerors-preview/
